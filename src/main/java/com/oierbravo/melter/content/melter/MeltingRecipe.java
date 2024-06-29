@@ -131,7 +131,7 @@ public class MeltingRecipe implements Recipe<SimpleContainer> {
             if (GsonHelper.isValidNode(json, "processingTime")) {
                 processingTime = GsonHelper.getAsInt(json, "processingTime");
             }
-            int minimumHeat = 0;
+            int minimumHeat = 1;
             if (GsonHelper.isValidNode(json, "minimumHeat")) {
                 minimumHeat = GsonHelper.getAsInt(json, "minimumHeat");
             }

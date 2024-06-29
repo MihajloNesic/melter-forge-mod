@@ -1,9 +1,12 @@
 package com.oierbravo.melter.compat.jade;
 
+import com.oierbravo.melter.content.melter.HeatSources;
 import com.oierbravo.melter.content.melter.MelterBlockEntity;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -24,11 +27,11 @@ public class ProgressComponentProvider  implements IBlockComponentProvider, ISer
             IProgressStyle progressStyle = elementHelper.progressStyle();
             if(progress > 0)
                 tooltip.add(elementHelper.progress((float)progress / 100, Component.translatable("melter.tooltip.progress", progress), progressStyle, BoxStyle.DEFAULT, true));
-            int heatMultiplier = accessor.getServerData().getInt("melter.multiplier");
-            if(heatMultiplier > 0) {
-                tooltip.add(Component.translatable("melter.tooltip.oneline",accessor.getServerData().getString("melter.displayName"), heatMultiplier));
+            int heatLevel = accessor.getServerData().getInt("melter.heat_level");
+            if(heatLevel > 0) {
+                tooltip.add(Component.translatable("melter.tooltip.heat_level", accessor.getServerData().getString("melter.displayName"), heatLevel));
             } else {
-                tooltip.add(Component.translatable("melter.tooltip.multiplier_none"));
+                tooltip.add(Component.translatable("melter.tooltip.heat_level_none"));
             }
         }
 
@@ -41,13 +44,14 @@ public class ProgressComponentProvider  implements IBlockComponentProvider, ISer
 
     @Override
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
-        MelterBlockEntity blockEntity = (MelterBlockEntity) blockAccessor.getBlockEntity();
+        BlockEntity blockEntity = blockAccessor.getBlockEntity();
 
-        if(blockEntity != null){
+        if (blockEntity != null) {
             MelterBlockEntity melter = (MelterBlockEntity) blockEntity;
-            compoundTag.putInt("melter.progress",melter.getProgressPercent());
-            compoundTag.putInt("melter.multiplier",melter.getHeatSourceMultiplier());
-            compoundTag.putString("melter.displayName",melter.getHeatSourceDisplayName());
+            compoundTag.putInt("melter.progress", melter.getProgressPercent());
+            compoundTag.putString("melter.heat_source_name", melter.getHeatSourceDisplayName());
+            compoundTag.putInt("melter.heat_level", melter.getHeatLevel());
+            compoundTag.putString("melter.displayName", melter.getHeatSourceDisplayName());
         }
     }
 }

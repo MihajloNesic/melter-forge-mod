@@ -13,7 +13,7 @@ public interface MeltingRecipeSchema {
     RecipeKey<InputItem> INGREDIENT = ItemComponents.INPUT.key("input");
     RecipeKey<OutputFluid> RESULT = FluidComponents.OUTPUT.key("output");
     RecipeKey<Integer> PROCESSING_TIME = NumberComponent.INT.key("processingTime").optional(100);
-    RecipeKey<Integer> MINIMUM_HEAT = NumberComponent.INT.key("minimumHeat").optional(0);
+    RecipeKey<Integer> MINIMUM_HEAT = NumberComponent.INT.key("minimumHeat").optional(1);
 
 
     public class MeltingRecipe extends RecipeJS{

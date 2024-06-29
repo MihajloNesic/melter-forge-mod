@@ -3,9 +3,9 @@
   "config.jade.plugin_melter.melter_data": "Melter data",
   "itemGroup.melter:main": "Melter",
   "melter.block.display": "Melter",
-  "melter.tooltip.multiplier": "Heat multiplier: %d",
-  "melter.tooltip.multiplier_none": "§cNot heated!",
-  "melter.tooltip.oneline": "Heat: %s §6x%d",
+  "melter.tooltip.no_source_found": "No valid heat source found",
+  "melter.tooltip.heat_level_none": "§cNot heated!",
+  "melter.tooltip.heat_level": "Heat: %s §6(%d§6)",
   "melter.tooltip.progress": "Progress: %d%%",
   "melting.recipe": "Melting"
 }

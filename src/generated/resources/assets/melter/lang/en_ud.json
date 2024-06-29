@@ -3,9 +3,9 @@
   "config.jade.plugin_melter.melter_data": "ɐʇɐp ɹǝʇןǝW",
   "itemGroup.melter:main": "ɹǝʇןǝW",
   "melter.block.display": "ɹǝʇןǝW",
-  "melter.tooltip.multiplier": "%d :ɹǝıןdıʇןnɯ ʇɐǝH",
-  "melter.tooltip.multiplier_none": "¡pǝʇɐǝɥ ʇoNɔ§",
-  "melter.tooltip.oneline": "%dx9§ %s :ʇɐǝH",
+  "melter.tooltip.no_source_found": "punoɟ ǝɔɹnos ʇɐǝɥ pᴉlɐʌ oN",
+  "melter.tooltip.heat_level_none": "§c¡pǝʇɐǝɥ ʇoN",
+  "melter.tooltip.heat_level": "§6(%d§6) %s :ʇɐǝH",
   "melter.tooltip.progress": "%d%% :ssǝɹboɹԀ",
   "melting.recipe": "buıʇןǝW"
 }

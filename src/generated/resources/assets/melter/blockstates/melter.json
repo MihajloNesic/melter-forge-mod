@@ -1,31 +1,49 @@
 {
   "variants": {
-    "heatesource=blaze_burner_active": {
-      "model": "melter:block/melter_blaze_burner_active"
+    "heatsource=none": {
+      "model": "melter:block/melter_no_heat"
     },
-    "heatesource=blaze_burner_fading": {
-      "model": "melter:block/melter_blaze_burner_fading"
+    "heatsource=torch": {
+      "model": "melter:block/melter_heat1"
     },
-    "heatesource=blaze_burner_inactive": {
-      "model": "melter:block/melter_blaze_burner_inactive"
+    "heatsource=soul_torch": {
+      "model": "melter:block/melter_heat1"
     },
-    "heatesource=blaze_burner_superheated": {
-      "model": "melter:block/melter_blaze_burner_superheated"
+    "heatsource=wall_torch": {
+      "model": "melter:block/melter_heat1"
     },
-    "heatesource=campfire": {
-      "model": "melter:block/melter_campfire"
+    "heatsource=soul_wall_torch": {
+      "model": "melter:block/melter_heat1"
     },
-    "heatesource=lava": {
-      "model": "melter:block/melter_lava"
+    "heatsource=fire": {
+      "model": "melter:block/melter_heat2"
     },
-    "heatesource=none": {
-      "model": "melter:block/melter_none"
+    "heatsource=soul_fire": {
+      "model": "melter:block/melter_heat2"
     },
-    "heatesource=torch": {
-      "model": "melter:block/melter_torch"
+    "heatsource=campfire": {
+      "model": "melter:block/melter_heat2"
     },
-    "heatesource=wall_torch": {
-      "model": "melter:block/melter_wall_torch"
+    "heatsource=soul_campfire": {
+      "model": "melter:block/melter_heat2"
+    },
+    "heatsource=magma_block": {
+      "model": "melter:block/melter_heat3"
+    },
+    "heatsource=lava": {
+      "model": "melter:block/melter_heat4"
+    },
+    "heatsource=lit_blaze_burner": {
+      "model": "melter:block/melter_heat2"
+    },
+    "heatsource=blaze_burner_fading": {
+      "model": "melter:block/melter_heat3"
+    },
+    "heatsource=blaze_burner_active": {
+      "model": "melter:block/melter_heat3"
+    },
+    "heatsource=blaze_burner_superheated": {
+      "model": "melter:block/melter_really_hot"
     }
   }
 }

@@ -51,9 +51,9 @@ public class Melter
         registrate().addRawLang("melter.block.display", "Melter");
         registrate().addRawLang("melting.recipe", "Melting");
         registrate().addRawLang("melter.tooltip.progress", "Progress: %d%%");
-        registrate().addRawLang("melter.tooltip.multiplier", "Heat multiplier: %d");
-        registrate().addRawLang("melter.tooltip.oneline", "Heat: %s §6x§6%d");
-        registrate().addRawLang("melter.tooltip.multiplier_none", "§cNot heated!");
+        registrate().addRawLang("melter.tooltip.heat_level", "Heat: %s §6(%d§6)");
+        registrate().addRawLang("melter.tooltip.heat_level_none", "§cNot heated!");
+        registrate().addRawLang("melter.tooltip.no_source_found", "No valid heat source found");
         registrate().addRawLang("config.jade.plugin_melter.melter_data", "Melter data");
 
     }

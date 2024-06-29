@@ -173,19 +173,32 @@ public class MelterBlockEntity extends BlockEntity  {
     }
 
     public static void tick(Level pLevel, BlockPos pPos, BlockState pState, MelterBlockEntity pBlockEntity) {
-
         if(pLevel.isClientSide()) {
             return;
         }
+
         pBlockEntity.updateBlockStateFromNeighborUpdate(pState);
 
-
         if (canCraftFluid(pBlockEntity)) {
-            pBlockEntity.progress += pBlockEntity.getHeatSourceMultiplier();
+            // get heat source
+            HeatSources heatSource = pBlockEntity.getBlockState().getValue(MelterBlock.HEAT_SOURCE);
+
+            SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
+            inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
+            Optional<MeltingRecipe> match = ModRecipes.find(inputInventory, pLevel);
+            int heatLevel = match.get().getHeatLevel();
+            int diff = heatSource.getHeatLevel() - heatLevel;
+            int bonus = Math.max(diff, 0) * 2; // 2 ticks bonus per level above needed
+
+            int processingTime = pBlockEntity.getProcessingTime(pBlockEntity);
+
+            pBlockEntity.progress += 1 + bonus;
+
             BlockEntity.setChanged(pLevel, pPos, pState);
-           // pBlockEntity.clientSync();
-            pBlockEntity.maxProgress = pBlockEntity.getProcessingTime(pBlockEntity);
-            if (pBlockEntity.progress > pBlockEntity.maxProgress) {
+            // pBlockEntity.clientSync();
+            pBlockEntity.maxProgress = processingTime;
+
+            if (pBlockEntity.progress >= pBlockEntity.maxProgress) {
                 MelterBlockEntity.craftFluid(pBlockEntity);
             }
         } else {
@@ -193,13 +206,12 @@ public class MelterBlockEntity extends BlockEntity  {
             BlockEntity.setChanged(pLevel, pPos, pState);
             //pBlockEntity.clientSync();
         }
-
-
     }
 
-    public int getHeatSourceMultiplier() {
-        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).getMultiplier();
+    public int getHeatLevel() {
+        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).getHeatLevel();
     }
+
     public String getHeatSourceDisplayName() {
         return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).getDisplayName();
     }
@@ -256,6 +268,7 @@ public class MelterBlockEntity extends BlockEntity  {
                 && MelterBlockEntity.hasEnoughInputItems(inputInventory,match.get().getIngredients().get(0).getItems()[0].getCount())
                 && MelterBlockEntity.canInsertFluidAmountIntoOutput(pBlockEntity.fluidTankHandler, match.get().getOutputFluidStack(),match.get().getOutputFluidAmount())
                 && MelterBlockEntity.hasEnoughOutputSpace(pBlockEntity.fluidTankHandler,match.get().getOutputFluidAmount())
+                && MelterBlockEntity.isEmptyOrHasSameFluid(pBlockEntity.fluidTankHandler,  match.get().getOutputFluidStack())
                 && MelterBlockEntity.hasHeatSourceBelow(pBlockEntity)
                 && MelterBlockEntity.hasMinimumHeatSource(heatLevel, pBlockEntity);
     }
@@ -279,6 +292,10 @@ public class MelterBlockEntity extends BlockEntity  {
         return tank.isEmpty() ||  amount <= tank.getSpace();
     }
 
+    protected static boolean isEmptyOrHasSameFluid(FluidTank tank, FluidStack fluidStack) {
+        return tank.isEmpty() || tank.getFluid().equals(fluidStack);
+    }
+
     protected static boolean hasHeatSourceBelow(MelterBlockEntity pBlockEntity){
         BlockPos pos = pBlockEntity.getBlockPos();
         BlockState below = Objects.requireNonNull(pBlockEntity.getLevel()).getBlockState(pos.below());
@@ -289,7 +306,7 @@ public class MelterBlockEntity extends BlockEntity  {
         BlockPos pos = melter.getBlockPos();
         BlockState below = melter.getLevel().getBlockState(pos.below());
         HeatSources source = HeatSources.get(below);
-        return source.ordinal() >= minimum;
+        return minimum <= source.getHeatLevel();
     }
 
     @Override

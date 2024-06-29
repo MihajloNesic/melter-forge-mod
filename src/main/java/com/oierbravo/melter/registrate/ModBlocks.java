@@ -13,14 +13,16 @@ public class ModBlocks {
             .lang("Melter")
             .blockstate((ctx, prov) ->
                     prov.getVariantBuilder(ctx.getEntry()).forAllStates(state -> {
-                        String value = state.getValue(MelterBlock.HEAT_SOURCE).getSerializedName();
-                        return ConfiguredModel.builder().modelFile(prov.models().getExistingFile(ResourceLocation.tryParse("melter:block/melter_" + value))).build();
+                        int heatLevel = state.getValue(MelterBlock.HEAT_SOURCE).getHeatLevel();
+                        String suffix = heatLevel > 0 ? "_heat" + heatLevel : "";
+                        return ConfiguredModel.builder().modelFile(prov.models().getExistingFile(ResourceLocation.tryParse("melter:block/melter" + suffix))).build();
                     })
            )
             .simpleItem()
             .blockEntity(MelterBlockEntity::new)
             .build()
             .register();
+
     public static void register() {
 
     }

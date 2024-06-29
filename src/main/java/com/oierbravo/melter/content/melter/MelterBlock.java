@@ -4,6 +4,8 @@ import com.oierbravo.melter.foundation.block.ITE;
 import com.oierbravo.melter.foundation.utility.Iterate;
 import com.oierbravo.melter.registrate.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -38,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntity> {
-    public static final EnumProperty<HeatSources> HEAT_SOURCE = EnumProperty.create("heatesource", HeatSources.class);
+    public static final EnumProperty<HeatSources> HEAT_SOURCE = EnumProperty.create("heatsource", HeatSources.class);
     private static final VoxelShape RENDER_SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
 
     @SuppressWarnings("deprecation")
@@ -78,7 +80,7 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
                 LivingEntity entity = ((LivingEntity) pEntity);
                 if(pState.hasProperty(MelterBlock.HEAT_SOURCE) && pState.getValue(MelterBlock.HEAT_SOURCE) != HeatSources.NONE){
                     //entity.hurt(DamageSource.HOT_FLOOR,0.1f * pState.getValue(MelterBlock.HEAT_SOURCE).getMultiplier());
-                    entity.hurt(this.getTileEntity(pLevel,pPos).getLevel().damageSources().hotFloor(),0.4f* pState.getValue(MelterBlock.HEAT_SOURCE).getMultiplier());
+                    entity.hurt(this.getTileEntity(pLevel,pPos).getLevel().damageSources().hotFloor(),0.4f* pState.getValue(MelterBlock.HEAT_SOURCE).getHeatLevel());
                 }
             }
         }
@@ -92,13 +94,39 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
                                           Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (!pLevel.isClientSide()) {
             BlockEntity entity = pLevel.getBlockEntity(pPos);
-            if(entity instanceof MelterBlockEntity) {
-                MelterBlockEntity melter = (MelterBlockEntity) entity;
 
-                //WaterCondenser.LOGGER.info("Amount: " + amount + " percent: " + percent + "%");
-                boolean success = FluidUtil.interactWithFluidHandler(pPlayer,pHand,melter.getFluidHandler());
-                if(success){
+            ItemStack heldItem = pPlayer.getItemInHand(pHand);
+            boolean isEmptyHanded = heldItem.isEmpty();
+
+            if(entity instanceof MelterBlockEntity melter) {
+                ItemStack itemInMelter = melter.getItemHandler().getStackInSlot(0);
+
+                // if the hand is empty (and there is items in the melter), take the items out
+                if (isEmptyHanded) {
+                    if (!itemInMelter.isEmpty()) {
+                        pPlayer.getInventory().placeItemBackInInventory(itemInMelter);
+                        melter.setItemStack(ItemStack.EMPTY);
+                        pLevel.playSound(null, pPos, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, .2f, 1f);
+                        melter.setChanged();
+                    }
+                }
+                // if a player clicks on a melter with a tank or a bucket
+                else if (FluidUtil.interactWithFluidHandler(pPlayer, pHand, melter.getFluidHandler())) {
                     melter.setChanged();
+                }
+                // try and put the items in the melter (only items with valid recipe are allowed and up to 64)
+                else {
+                    LazyOptional<IItemHandler> capability = melter.getCapability(ForgeCapabilities.ITEM_HANDLER);
+                    ItemStack remainder = capability.orElse(new ItemStackHandler())
+                            .insertItem(0, heldItem, false);
+                    if (remainder.isEmpty()) {
+                        pPlayer.setItemInHand(pHand, ItemStack.EMPTY);
+                        melter.setChanged();
+                    }
+                    else if (remainder.getCount() < heldItem.getCount()) {
+                        pPlayer.setItemInHand(pHand, remainder);
+                        melter.setChanged();
+                    }
                 }
             } else {
                 throw new IllegalStateException("Our Container provider is missing!");

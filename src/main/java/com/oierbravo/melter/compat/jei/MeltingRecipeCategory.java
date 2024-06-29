@@ -31,6 +31,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Map;
 
 public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
     public final static ResourceLocation UID = new ResourceLocation(Melter.MODID, "melting");
@@ -59,7 +61,7 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
 
             @Override
             public int getHeight() {
-                return 45;
+                return 50;
             }
 
             @Override
@@ -97,19 +99,20 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
     @Override
     public void setRecipe(@Nonnull IRecipeLayoutBuilder builder, @Nonnull MeltingRecipe recipe, @Nonnull IFocusGroup focusGroup) {
         Ingredient input = recipe.getIngredient();
-        builder.addSlot(RecipeIngredientRole.INPUT, 51, 11).addIngredients(recipe.getIngredient());
+        builder.addSlot(RecipeIngredientRole.INPUT, 51, 11).addIngredients(input);
 
-
-            NonNullList<FluidStack> fluidList = NonNullList.create();
-            fluidList.add(recipe.getOutput());
+        NonNullList<FluidStack> fluidList = NonNullList.create();
+        fluidList.add(recipe.getOutput());
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, 113, 11)
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB")) )
                 .addIngredients(ForgeTypes.FLUID_STACK, fluidList);
-        ItemStack minimumHeatItemStack = HeatSources.getItemStackFromMultiplier(recipe.getHeatLevel());
-        builder.addSlot(RecipeIngredientRole.RENDER_ONLY,80,28)
-                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal("Minimum heat: "+ recipe.getHeatLevel() )) )
-                .addItemStack(minimumHeatItemStack);
+
+        Map<HeatSources.Type, List> heatSourceStacks = HeatSources.getStacksForHeatLevel(recipe.getHeatLevel());
+        builder.addSlot(RecipeIngredientRole.RENDER_ONLY,80,32)
+                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal("Minimum heat: "+ recipe.getHeatLevel())))
+                .addIngredients(ForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSources.Type.FLUID))
+                .addItemStacks((List<ItemStack>) heatSourceStacks.get(HeatSources.Type.BLOCK));
 
     }
 
