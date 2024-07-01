@@ -1,0 +1,9 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "melter:block/melter",
+  "textures": {
+    "iron": "block/netherite_block",
+    "melter": "melter:block/melter_creative",
+    "particle": "block/cauldron_side"
+  }
+}

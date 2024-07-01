@@ -50,7 +50,7 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
     }
 
     public MelterBlock(Properties pProperties) {
-        super(pProperties);
+        super(pProperties.strength(0.6f));
         registerDefaultState(getStateDefinition().any().setValue(HEAT_SOURCE, HeatSources.NONE));
     }
     @Override
@@ -78,7 +78,7 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
         if(!pLevel.isClientSide()) {
             if(pEntity instanceof LivingEntity) {
                 LivingEntity entity = ((LivingEntity) pEntity);
-                if(pState.hasProperty(MelterBlock.HEAT_SOURCE) && pState.getValue(MelterBlock.HEAT_SOURCE) != HeatSources.NONE){
+                if(pState.hasProperty(MelterBlock.HEAT_SOURCE) && !pState.getValue(MelterBlock.HEAT_SOURCE).equals(HeatSources.NONE) && !pState.getValue(MelterBlock.HEAT_SOURCE).equals(HeatSources.OVER_9000)){
                     //entity.hurt(DamageSource.HOT_FLOOR,0.1f * pState.getValue(MelterBlock.HEAT_SOURCE).getMultiplier());
                     entity.hurt(this.getTileEntity(pLevel,pPos).getLevel().damageSources().hotFloor(),0.4f* pState.getValue(MelterBlock.HEAT_SOURCE).getHeatLevel());
                 }

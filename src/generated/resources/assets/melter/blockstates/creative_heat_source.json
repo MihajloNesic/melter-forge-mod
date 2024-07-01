@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "melter:block/creative_heat_source"
+    }
+  }
+}

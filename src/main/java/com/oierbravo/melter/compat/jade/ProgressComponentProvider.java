@@ -29,9 +29,14 @@ public class ProgressComponentProvider  implements IBlockComponentProvider, ISer
                 tooltip.add(elementHelper.progress((float)progress / 100, Component.translatable("melter.tooltip.progress", progress), progressStyle, BoxStyle.DEFAULT, true));
             int heatLevel = accessor.getServerData().getInt("melter.heat_level");
             if(heatLevel > 0) {
-                tooltip.add(Component.translatable("melter.tooltip.heat_level", accessor.getServerData().getString("melter.displayName"), heatLevel));
+                if (HeatSources.OVER_9000.getDisplayName().equals(accessor.getServerData().getString("melter.heat_source_name"))) {
+                    tooltip.add(Component.translatable("melter.tooltip.heat_level.creative", accessor.getServerData().getString("melter.displayName")).withStyle(ChatFormatting.DARK_PURPLE));
+                }
+                else {
+                    tooltip.add(Component.translatable("melter.tooltip.heat_level", accessor.getServerData().getString("melter.displayName"), heatLevel));
+                }
             } else {
-                tooltip.add(Component.translatable("melter.tooltip.heat_level_none"));
+                tooltip.add(Component.translatable("melter.tooltip.heat_level.none"));
             }
         }
 

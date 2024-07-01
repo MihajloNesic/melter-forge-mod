@@ -183,14 +183,20 @@ public class MelterBlockEntity extends BlockEntity  {
             // get heat source
             HeatSources heatSource = pBlockEntity.getBlockState().getValue(MelterBlock.HEAT_SOURCE);
 
+            int processingTime = pBlockEntity.getProcessingTime(pBlockEntity);
+
+            if (heatSource.equals(HeatSources.OVER_9000)) {
+                pBlockEntity.maxProgress = processingTime;
+                MelterBlockEntity.craftFluid(pBlockEntity);
+                return;
+            }
+
             SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
             inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
             Optional<MeltingRecipe> match = ModRecipes.find(inputInventory, pLevel);
             int heatLevel = match.get().getHeatLevel();
             int diff = heatSource.getHeatLevel() - heatLevel;
             int bonus = Math.max(diff, 0) * 2; // 2 ticks bonus per level above needed
-
-            int processingTime = pBlockEntity.getProcessingTime(pBlockEntity);
 
             pBlockEntity.progress += 1 + bonus;
 

@@ -33,6 +33,9 @@
     "heatsource=lava": {
       "model": "melter:block/melter_heat4"
     },
+    "heatsource=over_9000": {
+      "model": "melter:block/melter_creative"
+    },
     "heatsource=lit_blaze_burner": {
       "model": "melter:block/melter_heat2"
     },

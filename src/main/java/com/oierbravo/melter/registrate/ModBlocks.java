@@ -1,6 +1,7 @@
 package com.oierbravo.melter.registrate;
 
 import com.oierbravo.melter.Melter;
+import com.oierbravo.melter.content.melter.CreativeHeatSourceBlock;
 import com.oierbravo.melter.content.melter.MelterBlock;
 import com.oierbravo.melter.content.melter.MelterBlockEntity;
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -22,6 +23,13 @@ public class ModBlocks {
             .blockEntity(MelterBlockEntity::new)
             .build()
             .register();
+
+    public static final BlockEntry<CreativeHeatSourceBlock> CREATIVE_HEAT_SOURCE_BLOCK = Melter.registrate()
+            .block("creative_heat_source", CreativeHeatSourceBlock::new)
+            .lang("Creative Heat Source")
+            .simpleItem()
+            .register();
+
 
     public static void register() {
 

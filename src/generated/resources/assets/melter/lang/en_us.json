@@ -1,11 +1,13 @@
 {
   "block.melter.melter": "Melter",
+  "block.melter.creative_heat_source": "§5Creative Heat Source",
   "config.jade.plugin_melter.melter_data": "Melter data",
   "itemGroup.melter:main": "Melter",
   "melter.block.display": "Melter",
   "melter.tooltip.no_source_found": "No valid heat source found",
-  "melter.tooltip.heat_level_none": "§cNot heated!",
+  "melter.tooltip.heat_level.none": "§cNot heated!",
   "melter.tooltip.heat_level": "Heat: %s §6(%d§6)",
+  "melter.tooltip.heat_level.creative": "Heat: %s (infinite)",
   "melter.tooltip.progress": "Progress: %d%%",
   "melting.recipe": "Melting"
 }

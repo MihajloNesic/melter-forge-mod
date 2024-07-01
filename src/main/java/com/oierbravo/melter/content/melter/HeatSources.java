@@ -40,6 +40,9 @@ public enum HeatSources implements StringRepresentable {
     // level 4
     LAVA(4, Type.FLUID, "Block{minecraft:lava}", "minecraft:lava", "Lava"),
 
+    // Creative
+    OVER_9000(9001, "Block{melter:creative_heat_source}", "", "Over 9000!"),
+
     // Create
     LIT_BLAZE_BURNER(2,"create:blocks/lit_blaze_burner", "create:empty_blaze_burner", "Lit Blaze Burner"),
     //BLAZE_BURNER_INACTIVE(0,"create:blocks/blaze_burner:smouldering", "create:blaze_burner", "Blaze Burner"),
@@ -146,6 +149,7 @@ public enum HeatSources implements StringRepresentable {
 
         Arrays.stream(HeatSources.values())
                 .filter(source -> source.getHeatLevel() == heatLevel)
+                .filter(source -> !source.equals(OVER_9000))
                 .forEach(source -> {
                     String texture = source.getTextureName();
                     ResourceLocation resourceLocation = ResourceLocation.tryParse(texture);
