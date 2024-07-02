@@ -2,6 +2,7 @@
   "block.melter.melter": "Melter",
   "block.melter.creative_heat_source": "§5Creative Heat Source",
   "creative_heat_source.tooltip": "Infinite heat level for the Melter",
+  "creative_heat_source.info": "Transforms any Melter into a 'Creative Melter' by placing this block under it. Creative Melter has an infinite heat level and will instantly melt anything. Also it won't hurt when you or any mob standing on it.",
   "config.jade.plugin_melter.melter_data": "Melter data",
   "itemGroup.melter:main": "Melter",
   "melter.block.display": "Melter",

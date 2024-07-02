@@ -51,6 +51,7 @@ public class Melter
         registrate().addRawLang("melter.block.display", "Melter");
         registrate().addRawLang("melting.recipe", "Melting");
         registrate().addRawLang("creative_heat_source.tooltip", "Infinite heat level for the Melter");
+        registrate().addRawLang("creative_heat_source.info", "Transforms any Melter into a 'Creative Melter' by placing this block under it. Creative Melter has an infinite heat level and will instantly melt anything. Also it won't hurt when you or any mob standing on it.");
         registrate().addRawLang("melter.tooltip.progress", "Progress: %d%%");
         registrate().addRawLang("melter.tooltip.heat_level", "Heat: %s §6(%d§6)");
         registrate().addRawLang("melter.tooltip.heat_level.creative", "Heat: %s (infinite)");

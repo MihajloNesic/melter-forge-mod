@@ -32,6 +32,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,9 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
     private final IDrawable icon;
     //protected final IDrawableAnimated arrow;
     //private final LoadingCache<Integer, IDrawableAnimated> cachedArrows;
+
+    private final IDrawable slotDrawable;
+    private final DecimalFormat decimalFormat = new DecimalFormat("#,###");
 
     public MeltingRecipeCategory(IGuiHelper helper) {
         this.cachedArrows = CacheBuilder.newBuilder()
@@ -62,7 +66,7 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
 
             @Override
             public int getHeight() {
-                return 50;
+                return 55;
             }
 
             @Override
@@ -71,7 +75,7 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
             }
         };
         this.icon = helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.MELTER.get()));
-
+        this.slotDrawable = helper.getSlotDrawable();
     }
 
     protected IDrawableAnimated getArrow() {
@@ -99,41 +103,46 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
 
     @Override
     public void setRecipe(@Nonnull IRecipeLayoutBuilder builder, @Nonnull MeltingRecipe recipe, @Nonnull IFocusGroup focusGroup) {
+        int inputSlotOffsetX = 51;
+
         Ingredient input = recipe.getIngredient();
-        builder.addSlot(RecipeIngredientRole.INPUT, 51, 11).addIngredients(input);
+        builder.addSlot(RecipeIngredientRole.INPUT, inputSlotOffsetX, 14)
+                .addIngredients(input)
+                .setBackground(slotDrawable, -1, -1);
 
         NonNullList<FluidStack> fluidList = NonNullList.create();
         fluidList.add(recipe.getOutput());
 
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 113, 11)
+        builder.addSlot(RecipeIngredientRole.OUTPUT, getWidth()-inputSlotOffsetX - slotDrawable.getWidth(), 14)
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB").withStyle(ChatFormatting.GOLD)) )
-                .addIngredients(ForgeTypes.FLUID_STACK, fluidList);
+                .addIngredients(ForgeTypes.FLUID_STACK, fluidList)
+                .setBackground(slotDrawable, -1, -1);
 
         Map<HeatSources.Type, List> heatSourceStacks = HeatSources.getStacksForHeatLevel(recipe.getHeatLevel());
-        builder.addSlot(RecipeIngredientRole.RENDER_ONLY,80,32)
-                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.translatable("jei.melting.recipe.minimum_heat", recipe.getHeatLevel())))
+        builder.addSlot(RecipeIngredientRole.RENDER_ONLY,getWidth()/2 - slotDrawable.getWidth()/2,38)
+                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.translatable("jei.melting.recipe.minimum_heat", recipe.getHeatLevel()).withStyle(ChatFormatting.GOLD)))
                 .addIngredients(ForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSources.Type.FLUID))
-                .addItemStacks((List<ItemStack>) heatSourceStacks.get(HeatSources.Type.BLOCK));
-
+                .addItemStacks((List<ItemStack>) heatSourceStacks.get(HeatSources.Type.BLOCK))
+                .setBackground(slotDrawable, -1, -1);
     }
 
     @Override
     public void draw(MeltingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
         IRecipeCategory.super.draw(recipe, recipeSlotsView, graphics, mouseX, mouseY);
         IDrawableAnimated arrow = getArrow();
-        arrow.draw(graphics, 75, 14);
-        drawProcessingTime(recipe, graphics, 81,4);
-
-
+        arrow.draw(graphics, getWidth()/2 - arrow.getWidth()/2, 15);
+        drawProcessingTime(recipe, graphics);
     }
-    protected void drawProcessingTime(MeltingRecipe recipe, GuiGraphics graphics, int x, int y) {
+
+    protected void drawProcessingTime(MeltingRecipe recipe, GuiGraphics graphics) {
         int processingTime = recipe.getProcessingTime();
         if (processingTime > 0) {
             int cookTimeSeconds = processingTime / 20;
-            MutableComponent timeString = Component.translatable("gui.jei.category.smelting.time.seconds", cookTimeSeconds);
+            MutableComponent timeString = Component.literal(decimalFormat.format(cookTimeSeconds) + "s");
             Minecraft minecraft = Minecraft.getInstance();
             Font fontRenderer = minecraft.font;
-            graphics.drawString(fontRenderer,timeString,x,y,0xFF808080,false);
+            int stringWidth = fontRenderer.width(timeString);
+            graphics.drawString(fontRenderer, timeString, getWidth()/2 - stringWidth/2, 2, 0xFF808080, false);
         }
     }
 }
