@@ -56,6 +56,7 @@ public class Melter
         registrate().addRawLang("melter.tooltip.heat_level.none", "§cNot heated!");
         registrate().addRawLang("melter.tooltip.no_source_found", "No valid heat source found");
         registrate().addRawLang("config.jade.plugin_melter.melter_data", "Melter data");
+        registrate().addRawLang("jei.melting.recipe.minimum_heat", "Minimum heat: %d");
 
     }
 
