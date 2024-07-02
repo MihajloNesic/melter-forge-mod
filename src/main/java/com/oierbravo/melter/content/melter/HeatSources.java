@@ -155,7 +155,11 @@ public enum HeatSources implements StringRepresentable {
                     ResourceLocation resourceLocation = ResourceLocation.tryParse(texture);
                     if (source.getType().equals(Type.FLUID)) {
                         FluidStack fs = new FluidStack(ForgeRegistries.FLUIDS.getValue(resourceLocation), 1000);
-                        if (!stackMap.get(Type.FLUID).contains(fs)) {
+
+                        boolean isFluidStackPresent = stackMap.get(Type.FLUID).stream()
+                            .anyMatch(stack -> ((FluidStack) stack).isFluidEqual(fs));
+
+                        if (!isFluidStackPresent) {
                             stackMap.get(Type.FLUID).add(fs);
                         }
                     }
@@ -166,7 +170,11 @@ public enum HeatSources implements StringRepresentable {
                             case SOUL_FIRE -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
                             default -> new ItemStack(ForgeRegistries.ITEMS.getValue(resourceLocation));
                         };
-                        if (!stackMap.get(Type.BLOCK).contains(is) && !is.getItem().equals(new ItemStack(Blocks.AIR).getItem())) {
+
+                        boolean isItemStackPresent = stackMap.get(Type.BLOCK).stream()
+                            .anyMatch(stack -> ((ItemStack) stack).is(is.getItem()));
+
+                        if (!isItemStackPresent && !is.getItem().equals(new ItemStack(Blocks.AIR).getItem())) {
                             stackMap.get(Type.BLOCK).add(is);
                         }
                     }

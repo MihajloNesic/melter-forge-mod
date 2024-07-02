@@ -1,6 +1,7 @@
 {
   "block.melter.melter": "ɹǝʇןǝW",
   "block.melter.creative_heat_source": "§5ǝɔɹnoS ʇɐǝH ǝʌᴉʇɐǝɹƆ",
+  "creative_heat_source.tooltip": "ɹǝʇlǝW ǝɥʇ ɹoɟ lǝʌǝl ʇɐǝɥ ǝʇᴉuᴉɟuI",
   "config.jade.plugin_melter.melter_data": "ɐʇɐp ɹǝʇןǝW",
   "itemGroup.melter:main": "ɹǝʇןǝW",
   "melter.block.display": "ɹǝʇןǝW",
@@ -9,5 +10,6 @@
   "melter.tooltip.heat_level": "§6(%d§6) %s :ʇɐǝH",
   "melter.tooltip.heat_level.creative": "(ǝʇᴉuᴉɟuᴉ) %s :ʇɐǝH",
   "melter.tooltip.progress": "%d%% :ssǝɹboɹԀ",
-  "melting.recipe": "buıʇןǝW"
+  "melting.recipe": "buıʇןǝW",
+  "jei.melting.recipe.minimum_heat": "%d :ʇɐǝɥ ɯnɯᴉuᴉW"
 }

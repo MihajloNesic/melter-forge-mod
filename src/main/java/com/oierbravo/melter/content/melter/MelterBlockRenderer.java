@@ -47,7 +47,7 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
             }
             else {
                 TransformStack msr = TransformStack.cast(pPoseStack);
-                pPoseStack.translate(0.5d, 0.8d * percent + 0.18d, 0.6d);
+                pPoseStack.translate(0.5d, 0.8d * percent + 0.175d, 0.6d);
                 msr.rotateX(-90);
             }
             this.renderBlock(pPoseStack,pBufferSource,pPackedLight,pPackedOverlay,itemStack,pBlockEntity);
@@ -58,7 +58,7 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
     }
     private void renderFluidInTank(BlockAndTintGetter world, BlockPos pos, FluidStack fluidStack, PoseStack matrix, MultiBufferSource buffer, float percent) {
         matrix.pushPose();
-        matrix.translate(0.5d, 0.6d, 0.5d);
+        matrix.translate(0.5d, 0.565d, 0.5d);
         Matrix4f matrix4f = matrix.last().pose();
         Matrix3f matrix3f = matrix.last().normal();
 
@@ -83,17 +83,14 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         float a = ((color >> 24) & 0xFF) / 255f;
 
         float width = 10 / 16f;
-        float height = 14 / 16f;
+        float height = 12 / 16f;
 
         float minU = sprite.getU(4);
         float maxU = sprite.getU(16);
         float minV = sprite.getV(4);
         float maxV = sprite.getV(16);
 
-        // add offset only if there is more than 100mb of fluid
-        // TODO: handle low amounts of fluid better
-        float offset = Float.compare(percent, 0.1f) == 1 ? -0.1f : 0;
-        float pY = -height / 2 + percent * height + offset;
+        float pY = -height / 2 + percent * height;
 
         builder.vertex(matrix4f, -width / 2, pY , -width / 2).color(r, g, b, a)
                 .uv(minU, minV)

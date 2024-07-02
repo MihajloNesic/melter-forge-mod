@@ -19,6 +19,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.common.Constants;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -105,12 +106,12 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
         fluidList.add(recipe.getOutput());
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, 113, 11)
-                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB")) )
+                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB").withStyle(ChatFormatting.GOLD)) )
                 .addIngredients(ForgeTypes.FLUID_STACK, fluidList);
 
         Map<HeatSources.Type, List> heatSourceStacks = HeatSources.getStacksForHeatLevel(recipe.getHeatLevel());
         builder.addSlot(RecipeIngredientRole.RENDER_ONLY,80,32)
-                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal("Minimum heat: "+ recipe.getHeatLevel())))
+                .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.translatable("jei.melting.recipe.minimum_heat", recipe.getHeatLevel())))
                 .addIngredients(ForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSources.Type.FLUID))
                 .addItemStacks((List<ItemStack>) heatSourceStacks.get(HeatSources.Type.BLOCK));
 
