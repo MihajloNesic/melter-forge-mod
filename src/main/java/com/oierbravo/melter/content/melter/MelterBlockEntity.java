@@ -295,7 +295,7 @@ public class MelterBlockEntity extends BlockEntity  {
         return tank.isEmpty() || tank.isFluidValid(amount,fluidStack);
     }
     protected static boolean hasEnoughOutputSpace(FluidTank tank,int amount){
-        return tank.isEmpty() ||  amount <= tank.getSpace();
+        return amount <= tank.getSpace();
     }
 
     protected static boolean isEmptyOrHasSameFluid(FluidTank tank, FluidStack fluidStack) {
