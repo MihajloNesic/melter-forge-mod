@@ -7,10 +7,11 @@
   "itemGroup.melter:main": "ɹǝʇןǝW",
   "melter.block.display": "ɹǝʇןǝW",
   "melter.tooltip.no_source_found": "punoɟ ǝɔɹnos ʇɐǝɥ pᴉlɐʌ oN",
-  "melter.tooltip.heat_level.none": "§c¡pǝʇɐǝɥ ʇoN",
-  "melter.tooltip.heat_level": "§6(%d§6) %s :ʇɐǝH",
-  "melter.tooltip.heat_level.creative": "(ǝʇᴉuᴉɟuᴉ) %s :ʇɐǝH",
+  "melter.tooltip.heat_level.none": "§cpǝʇɐǝɥ ʇoN",
+  "melter.tooltip.heat_level": ":ʇɐǝH",
+  "melter.tooltip.heat_level.creative": "§5ǝʇᴉuᴉɟuᴉ",
   "melter.tooltip.progress": "%d%% :ssǝɹboɹԀ",
   "melting.recipe": "buıʇןǝW",
+  "heatsource.recipe": "sǝɔɹnoS ʇɐǝH ɹǝʇlǝW",
   "jei.melting.recipe.minimum_heat": "%d :ʇɐǝɥ ɯnɯᴉuᴉW"
 }

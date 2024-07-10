@@ -14,7 +14,7 @@ public class ModBlocks {
             .lang("Melter")
             .blockstate((ctx, prov) ->
                     prov.getVariantBuilder(ctx.getEntry()).forAllStates(state -> {
-                        int heatLevel = state.getValue(MelterBlock.HEAT_SOURCE).getHeatLevel();
+                        int heatLevel = state.getValue(MelterBlock.HEAT_SOURCE);
                         String suffix = heatLevel > 0 ? "_heat" + heatLevel : "";
                         return ConfiguredModel.builder().modelFile(prov.models().getExistingFile(ResourceLocation.tryParse("melter:block/melter" + suffix))).build();
                     })

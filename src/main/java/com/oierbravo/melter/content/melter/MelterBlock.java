@@ -25,7 +25,8 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -40,7 +41,9 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntity> {
-    public static final EnumProperty<HeatSources> HEAT_SOURCE = EnumProperty.create("heatsource", HeatSources.class);
+    public static final IntegerProperty HEAT_SOURCE = IntegerProperty.create("heatsource", 0, 10);
+    public static final BooleanProperty CREATIVE = BooleanProperty.create("creative");
+
     private static final VoxelShape RENDER_SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
 
     @SuppressWarnings("deprecation")
@@ -51,15 +54,18 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
 
     public MelterBlock(Properties pProperties) {
         super(pProperties.strength(0.6f));
-        registerDefaultState(getStateDefinition().any().setValue(HEAT_SOURCE, HeatSources.NONE));
+        registerDefaultState(getStateDefinition().any().setValue(HEAT_SOURCE, 0).setValue(CREATIVE, false));
     }
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HEAT_SOURCE);
+        builder.add(CREATIVE);
     }
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(HEAT_SOURCE, HeatSources.fromLevel(context.getLevel(), context.getClickedPos().below()));
+        return defaultBlockState()
+            .setValue(HEAT_SOURCE, HeatSources.fromLevel(context.getLevel(), context.getClickedPos().below()))
+            .setValue(CREATIVE, HeatSources.isCreative(context.getLevel(), context.getClickedPos().below()));
     }
 
     @Override
@@ -78,9 +84,9 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
         if(!pLevel.isClientSide()) {
             if(pEntity instanceof LivingEntity) {
                 LivingEntity entity = ((LivingEntity) pEntity);
-                if(pState.hasProperty(MelterBlock.HEAT_SOURCE) && !pState.getValue(MelterBlock.HEAT_SOURCE).equals(HeatSources.NONE) && !pState.getValue(MelterBlock.HEAT_SOURCE).equals(HeatSources.OVER_9000)){
+                if(pState.hasProperty(MelterBlock.HEAT_SOURCE) && !pState.getValue(MelterBlock.HEAT_SOURCE).equals(0) && !pState.getValue(MelterBlock.CREATIVE)) {
                     //entity.hurt(DamageSource.HOT_FLOOR,0.1f * pState.getValue(MelterBlock.HEAT_SOURCE).getMultiplier());
-                    entity.hurt(this.getTileEntity(pLevel,pPos).getLevel().damageSources().hotFloor(),0.4f* pState.getValue(MelterBlock.HEAT_SOURCE).getHeatLevel());
+                    entity.hurt(this.getTileEntity(pLevel,pPos).getLevel().damageSources().hotFloor(),0.4f* pState.getValue(MelterBlock.HEAT_SOURCE));
                 }
             }
         }

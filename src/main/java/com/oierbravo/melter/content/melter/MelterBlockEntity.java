@@ -181,11 +181,11 @@ public class MelterBlockEntity extends BlockEntity  {
 
         if (canCraftFluid(pBlockEntity)) {
             // get heat source
-            HeatSources heatSource = pBlockEntity.getBlockState().getValue(MelterBlock.HEAT_SOURCE);
+            int heatSource = pBlockEntity.getBlockState().getValue(MelterBlock.HEAT_SOURCE);
 
             int processingTime = pBlockEntity.getProcessingTime(pBlockEntity);
 
-            if (heatSource.equals(HeatSources.OVER_9000)) {
+            if (pBlockEntity.isCreative()) {
                 pBlockEntity.maxProgress = processingTime;
                 MelterBlockEntity.craftFluid(pBlockEntity);
                 return;
@@ -195,7 +195,7 @@ public class MelterBlockEntity extends BlockEntity  {
             inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
             Optional<MeltingRecipe> match = ModRecipes.find(inputInventory, pLevel);
             int heatLevel = match.get().getHeatLevel();
-            int diff = heatSource.getHeatLevel() - heatLevel;
+            int diff = heatSource - heatLevel;
             int bonus = Math.max(diff, 0) * 2; // 2 ticks bonus per level above needed
 
             pBlockEntity.progress += 1 + bonus;
@@ -215,18 +215,20 @@ public class MelterBlockEntity extends BlockEntity  {
     }
 
     public int getHeatLevel() {
-        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).getHeatLevel();
+        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE);
     }
 
-    public String getHeatSourceDisplayName() {
-        return this.getBlockState().getValue(MelterBlock.HEAT_SOURCE).getDisplayName();
+    public boolean isCreative() {
+        return this.getBlockState().getValue(MelterBlock.CREATIVE);
     }
 
     public void updateBlockStateFromNeighborUpdate(BlockState pLastState){
         BlockPos pos = this.getBlockPos();
         BlockState below = this.getLevel().getBlockState(pos.below());
 
-        BlockState newState = this.getBlockState().setValue(MelterBlock.HEAT_SOURCE,HeatSources.get(below));
+        BlockState newState = this.getBlockState()
+            .setValue(MelterBlock.HEAT_SOURCE, HeatSources.getHeatSource(below))
+            .setValue(MelterBlock.CREATIVE, HeatSources.isCreative(getLevel(), pos.below()));
         if(!pLastState.equals(newState)){
             this.getLevel().setBlock(pos,newState,Block.UPDATE_ALL);
             //clientSync();
@@ -311,8 +313,8 @@ public class MelterBlockEntity extends BlockEntity  {
     protected static boolean hasMinimumHeatSource(int minimum, MelterBlockEntity melter) {
         BlockPos pos = melter.getBlockPos();
         BlockState below = melter.getLevel().getBlockState(pos.below());
-        HeatSources source = HeatSources.get(below);
-        return minimum <= source.getHeatLevel();
+        int sourceHeatLevel = HeatSources.getHeatSource(below);
+        return minimum <= sourceHeatLevel;
     }
 
     @Override

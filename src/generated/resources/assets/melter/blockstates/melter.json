@@ -1,51 +1,39 @@
 {
   "variants": {
-    "heatsource=none": {
-      "model": "melter:block/melter_no_heat"
-    },
-    "heatsource=torch": {
-      "model": "melter:block/melter_heat1"
-    },
-    "heatsource=soul_torch": {
-      "model": "melter:block/melter_heat1"
-    },
-    "heatsource=wall_torch": {
-      "model": "melter:block/melter_heat1"
-    },
-    "heatsource=soul_wall_torch": {
-      "model": "melter:block/melter_heat1"
-    },
-    "heatsource=fire": {
-      "model": "melter:block/melter_heat2"
-    },
-    "heatsource=soul_fire": {
-      "model": "melter:block/melter_heat2"
-    },
-    "heatsource=campfire": {
-      "model": "melter:block/melter_heat2"
-    },
-    "heatsource=soul_campfire": {
-      "model": "melter:block/melter_heat2"
-    },
-    "heatsource=magma_block": {
-      "model": "melter:block/melter_heat3"
-    },
-    "heatsource=lava": {
-      "model": "melter:block/melter_heat4"
-    },
-    "heatsource=over_9000": {
+    "creative=true": {
       "model": "melter:block/melter_creative"
     },
-    "heatsource=lit_blaze_burner": {
+    "heatsource=0,creative=false": {
+      "model": "melter:block/melter_no_heat"
+    },
+    "heatsource=1,creative=false": {
+      "model": "melter:block/melter_heat1"
+    },
+    "heatsource=2,creative=false": {
       "model": "melter:block/melter_heat2"
     },
-    "heatsource=blaze_burner_fading": {
+    "heatsource=3,creative=false": {
       "model": "melter:block/melter_heat3"
     },
-    "heatsource=blaze_burner_active": {
-      "model": "melter:block/melter_heat3"
+    "heatsource=4,creative=false": {
+      "model": "melter:block/melter_heat4"
     },
-    "heatsource=blaze_burner_superheated": {
+    "heatsource=5,creative=false": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "heatsource=6,creative=false": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "heatsource=7,creative=false": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "heatsource=8,creative=false": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "heatsource=9,creative=false": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "heatsource=10,creative=false": {
       "model": "melter:block/melter_really_hot"
     }
   }

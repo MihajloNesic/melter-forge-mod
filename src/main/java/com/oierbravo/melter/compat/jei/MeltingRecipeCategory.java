@@ -117,8 +117,8 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB").withStyle(ChatFormatting.GOLD)) )
                 .addIngredients(ForgeTypes.FLUID_STACK, fluidList)
                 .setBackground(slotDrawable, -1, -1);
-
-        Map<HeatSources.Type, List> heatSourceStacks = HeatSources.getStacksForHeatLevel(recipe.getHeatLevel());
+        
+        Map<HeatSources.Type, List> heatSourceStacks = HeatSources.getHeatSourcesForHeatLevel(recipe.getHeatLevel());
         builder.addSlot(RecipeIngredientRole.RENDER_ONLY,getWidth()/2 - slotDrawable.getWidth()/2,38)
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.translatable("jei.melting.recipe.minimum_heat", recipe.getHeatLevel()).withStyle(ChatFormatting.GOLD)))
                 .addIngredients(ForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSources.Type.FLUID))

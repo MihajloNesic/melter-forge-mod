@@ -7,10 +7,11 @@
   "itemGroup.melter:main": "Melter",
   "melter.block.display": "Melter",
   "melter.tooltip.no_source_found": "No valid heat source found",
-  "melter.tooltip.heat_level.none": "§cNot heated!",
-  "melter.tooltip.heat_level": "Heat: %s §6(%d§6)",
-  "melter.tooltip.heat_level.creative": "Heat: %s (infinite)",
+  "melter.tooltip.heat_level.none": "§cNot heated",
+  "melter.tooltip.heat_level": "Heat:",
+  "melter.tooltip.heat_level.creative": "§5infinite",
   "melter.tooltip.progress": "Progress: %d%%",
   "melting.recipe": "Melting",
+  "heatsource.recipe": "Melter Heat Sources",
   "jei.melting.recipe.minimum_heat": "Minimum heat: %d"
 }

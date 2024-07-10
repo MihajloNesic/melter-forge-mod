@@ -29,13 +29,14 @@ public class JEIPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        registration.addRecipeCategories(new
-                MeltingRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new MeltingRecipeCategory(registration.getJeiHelpers().getGuiHelper()));
+        registration.addRecipeCategories(new HeatSourceCategory(registration.getJeiHelpers().getGuiHelper()));
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.MELTER.get()),new RecipeType<>(MeltingRecipeCategory.UID, MeltingRecipe.class));
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.MELTER.get()), new RecipeType<>(MeltingRecipeCategory.UID, MeltingRecipe.class));
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.MELTER.get()), HeatSourceCategory.TYPE);
     }
 
     @Override
@@ -44,6 +45,7 @@ public class JEIPlugin implements IModPlugin {
 
         List<MeltingRecipe> meltingRecipes = rm.getAllRecipesFor(MeltingRecipe.Type.INSTANCE);
         registration.addRecipes(new RecipeType<>(MeltingRecipeCategory.UID, MeltingRecipe.class), meltingRecipes);
+        registration.addRecipes(HeatSourceCategory.TYPE, HeatSourceCategory.getRecipes());
 
         registration.addIngredientInfo(new ItemStack(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK), VanillaTypes.ITEM_STACK, Component.translatable("creative_heat_source.info"));
     }
