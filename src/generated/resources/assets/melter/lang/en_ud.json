@@ -1,11 +1,17 @@
 {
   "block.melter.melter": "ɹǝʇןǝW",
+  "block.melter.creative_heat_source": "§5ǝɔɹnoS ʇɐǝH ǝʌᴉʇɐǝɹƆ",
+  "creative_heat_source.tooltip": "ɹǝʇlǝW ǝɥʇ ɹoɟ lǝʌǝl ʇɐǝɥ ǝʇᴉuᴉɟuI",
+  "creative_heat_source.info": "˙ʇᴉ uo ƃuᴉpuɐʇs qoɯ ʎuɐ ɹo noʎ uǝɥʍ ʇɹnɥ ʇ,uoʍ ʇᴉ osl∀ ˙ƃuᴉɥʇʎuɐ ʇlǝɯ ʎlʇuɐʇsuᴉ llᴉʍ puɐ lǝʌǝl ʇɐǝɥ ǝʇᴉuᴉɟuᴉ uɐ sɐɥ ɹǝʇlǝW ǝʌᴉʇɐǝɹƆ ˙ʇᴉ ɹǝpun ʞɔolq sᴉɥʇ ƃuᴉɔɐld ʎq ,ɹǝʇlǝW ǝʌᴉʇɐǝɹƆ, ɐ oʇuᴉ ɹǝʇlǝW ʎuɐ sɯɹoɟsuɐɹ┴",
   "config.jade.plugin_melter.melter_data": "ɐʇɐp ɹǝʇןǝW",
   "itemGroup.melter:main": "ɹǝʇןǝW",
   "melter.block.display": "ɹǝʇןǝW",
-  "melter.tooltip.multiplier": "%d :ɹǝıןdıʇןnɯ ʇɐǝH",
-  "melter.tooltip.multiplier_none": "¡pǝʇɐǝɥ ʇoNɔ§",
-  "melter.tooltip.oneline": "%dx9§ %s :ʇɐǝH",
+  "melter.tooltip.no_source_found": "punoɟ ǝɔɹnos ʇɐǝɥ pᴉlɐʌ oN",
+  "melter.tooltip.heat_level.none": "§cpǝʇɐǝɥ ʇoN",
+  "melter.tooltip.heat_level": ":ʇɐǝH",
+  "melter.tooltip.heat_level.creative": "§5ǝʇᴉuᴉɟuᴉ",
   "melter.tooltip.progress": "%d%% :ssǝɹboɹԀ",
-  "melting.recipe": "buıʇןǝW"
+  "melting.recipe": "buıʇןǝW",
+  "heatsource.recipe": "sǝɔɹnoS ʇɐǝH ɹǝʇlǝW",
+  "jei.melting.recipe.minimum_heat": "%d :ʇɐǝɥ ɯnɯᴉuᴉW"
 }

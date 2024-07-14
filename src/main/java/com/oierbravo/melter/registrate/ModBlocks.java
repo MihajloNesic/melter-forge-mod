@@ -1,6 +1,7 @@
 package com.oierbravo.melter.registrate;
 
 import com.oierbravo.melter.Melter;
+import com.oierbravo.melter.content.melter.CreativeHeatSourceBlock;
 import com.oierbravo.melter.content.melter.MelterBlock;
 import com.oierbravo.melter.content.melter.MelterBlockEntity;
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -13,14 +14,23 @@ public class ModBlocks {
             .lang("Melter")
             .blockstate((ctx, prov) ->
                     prov.getVariantBuilder(ctx.getEntry()).forAllStates(state -> {
-                        String value = state.getValue(MelterBlock.HEAT_SOURCE).getSerializedName();
-                        return ConfiguredModel.builder().modelFile(prov.models().getExistingFile(ResourceLocation.tryParse("melter:block/melter_" + value))).build();
+                        int heatLevel = state.getValue(MelterBlock.HEAT_SOURCE);
+                        String suffix = heatLevel > 0 ? "_heat" + heatLevel : "";
+                        return ConfiguredModel.builder().modelFile(prov.models().getExistingFile(ResourceLocation.tryParse("melter:block/melter" + suffix))).build();
                     })
            )
             .simpleItem()
             .blockEntity(MelterBlockEntity::new)
             .build()
             .register();
+
+    public static final BlockEntry<CreativeHeatSourceBlock> CREATIVE_HEAT_SOURCE_BLOCK = Melter.registrate()
+            .block("creative_heat_source", CreativeHeatSourceBlock::new)
+            .lang("Creative Heat Source")
+            .simpleItem()
+            .register();
+
+
     public static void register() {
 
     }

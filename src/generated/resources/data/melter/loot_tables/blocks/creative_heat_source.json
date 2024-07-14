@@ -11,7 +11,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "melter:melter"
+          "name": "melter:creative_heat_source"
         }
       ],
       "rolls": 1.0

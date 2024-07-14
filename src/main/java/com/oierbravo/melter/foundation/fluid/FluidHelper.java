@@ -101,7 +101,7 @@ public class FluidHelper {
 	public static FluidStack deserializeFluidStack(JsonObject json) {
 		ResourceLocation id = new ResourceLocation(GsonHelper.getAsString(json, "fluid"));
 		Fluid fluid = ForgeRegistries.FLUIDS.getValue(id);
-		if (fluid == null)
+		if (fluid == null || fluid.isSame(Fluids.EMPTY))
 			throw new JsonSyntaxException("Unknown fluid '" + id + "'");
 		int amount = GsonHelper.getAsInt(json, "amount");
 		FluidStack stack = new FluidStack(fluid, amount);

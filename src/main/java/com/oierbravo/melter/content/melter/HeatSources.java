@@ -1,105 +1,173 @@
 package com.oierbravo.melter.content.melter;
 
 import com.oierbravo.melter.Melter;
+import com.oierbravo.melter.registrate.ModBlocks;
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Arrays;
+import java.util.*;
 
-public enum HeatSources implements StringRepresentable {
-    NONE(0,"", "None"),
-    TORCH(1,"Block{minecraft:torch}", "Torch"),
-    WALL_TORCH(1,"Block{minecraft:torch}", "Torch"),
-    CAMPFIRE(2,"Block{minecraft:campfire}", "Campfire"),
-    LAVA(4,"Block{minecraft:lava}", "Lava"),
-    BLAZE_BURNER_INACTIVE(8,"create:blocks/blaze_burner:smouldering", "Blaze burner"),
-    BLAZE_BURNER_FADING(9,"create:blocks/blaze_burner:fading","Blaze burner"),
-    BLAZE_BURNER_ACTIVE(10,"create:blocks/blaze_burner:kindled","Blaze burner"),
-    BLAZE_BURNER_SUPERHEATED(16,"create:blocks/blaze_burner:seething","SUPERHEATED!");
-    // CREATE HeatLevel: NONE, SMOULDERING, FADING, KINDLED, SEETHING,;
-    private int multiplier;
-    private String resourceName;
-    private String displayName;
-    HeatSources (int multiplier, String resourceName, String displayName){
-        this.multiplier = multiplier;
-        this.resourceName = resourceName;
-        this.displayName = displayName;
-    }
+public class HeatSources {
 
-    public static HeatSources fromLevel(Level level, BlockPos below) {
+    public static int fromLevel(Level level, BlockPos below) {
         BlockState belowBlockState = level.getBlockState(below);
-        return HeatSources.get(belowBlockState);
+        return HeatSources.getHeatSource(belowBlockState);
     }
 
-    public int getMultiplier() {
-        return multiplier;
+    public static boolean isCreative(Level level, BlockPos below) {
+        Block belowBlock = level.getBlockState(below).getBlock();
+        return belowBlock.equals(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get());
     }
 
-    public String getResourceName() {
-        return resourceName;
+    public static boolean isHeatSource(BlockState blockState) {
+        int heatLevel = getHeatSource(blockState);
+        return heatLevel > 0;
     }
 
-    public static HeatSources get(int minimumHeat){
-        return Arrays.stream(HeatSources.values())
-                .filter(e -> e.multiplier > minimumHeat)
-                .findFirst()
-                .orElse(HeatSources.NONE);
-    }
-    public static HeatSources get(String resourceName){
-        return Arrays.stream(HeatSources.values())
-                .filter(e -> e.resourceName.equals(resourceName))
-                .findFirst()
-                .orElse(HeatSources.NONE);
-    }
-    public static HeatSources get(BlockState blockState){
+    public static int getHeatSource(BlockState state) {
+        // creative
+        if (state.getBlock().equals(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get())) {
+            return 10;
+        }
 
-        String nameString = blockState.getBlock().getLootTable().toString();
-        String blockString = blockState.getBlock().toString();
-        if(blockString.equals(HeatSources.CAMPFIRE.getResourceName())){
-            if(!blockState.getValue(BlockStateProperties.LIT)){
-                return HeatSources.NONE;
+        Block block = state.getBlock();
+        String blockName = BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString();
+
+        // campfire state
+        if (state.hasProperty(CampfireBlock.LIT)) {
+            boolean isLit = state.getValue(CampfireBlock.LIT);
+            if (!isLit) {
+                return 0;
             }
         }
-        if(Melter.withCreate && (blockState.hasProperty(BlazeBurnerBlock.HEAT_LEVEL))){
-            BlazeBurnerBlock.HeatLevel heatLevel = blockState.getValue(BlazeBurnerBlock.HEAT_LEVEL);
-            nameString += ":" +heatLevel.getSerializedName();
-            return get(nameString);
+
+        // create
+        if (Melter.withCreate) {
+            // blaze burner
+            if (state.hasProperty(BlazeBurnerBlock.HEAT_LEVEL)) {
+                BlazeBurnerBlock.HeatLevel heatLevel = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
+                // can't have a second colon here, see ResourceLocation#assertValidNamespace
+                blockName += "/" + heatLevel.getSerializedName();
+            }
         }
 
-        return get(blockString);
-    }
-    public static boolean isHeatSource(BlockState blockState){
-        HeatSources source = HeatSources.get(blockState);
-        if(source != HeatSources.NONE){
-            return true;
+        // fluid
+        if (block instanceof LiquidBlock liquidBlock) {
+            ResourceLocation fluidRL = BuiltInRegistries.FLUID.getKey(liquidBlock.getFluid());
+            blockName = fluidRL.toString();
         }
-        return false;
-    }
-    public static ItemStack getItemStackFromMultiplier(int multiplier){
-        HeatSources heatSource = get(multiplier);
-        if(heatSource == HeatSources.NONE)
-            return ItemStack.EMPTY;
 
-        String resourceName = heatSource.getResourceName();
-        if(!resourceName.matches("create:blocks/blaze_burner(.*)")){
-            return new ItemStack(Items.TORCH);
-        }
-        resourceName = "create:blaze_burner";
-        ResourceLocation resourceLocation = ResourceLocation.tryParse(resourceName);
-        return new ItemStack(ForgeRegistries.ITEMS.getValue(resourceLocation));
+        int heatLevel = getHeatSourceMap().getOrDefault(blockName, 0);
+
+        return heatLevel;
     }
 
-    @Override
-    public String getSerializedName() {
-        return this.name().toLowerCase();
+    public static List<Config> getHeatSourcesConfig() {
+        return MelterConfig.HEAT_SOURCES.get()
+            .stream()
+            .map(s -> new Config(Type.valueOf(s.get(0).toUpperCase()), s.get(1), Integer.valueOf(s.get(2)), s.get(3)))
+            .toList();
+    }
+
+    public static Map<String, Integer> getHeatSourceMap() {
+        Map<String, Integer> map = new HashMap<>();
+        MelterConfig.HEAT_SOURCES.get()
+            .forEach(s -> {
+                if (!map.containsKey(s.get(1))) {
+                    map.put(s.get(1), Integer.valueOf(s.get(2)));
+                }
+            });
+        return map;
+    }
+
+    /**
+     * There isn't a good way to display both FluidStacks and ItemStacks in a JEI recipe.
+     * Here, we are getting every valid heat source for a specific level.
+     * A map is returned with a 'type' as a key and a list of 'anything', but really either a FluidStack or an ItemStack.
+     * There are then passed to MeltingRecipeCategory to display the textures.
+     *
+     * If no valid heat source is present, we are adding a Barrier block with a custom text.
+     */
+    public static Map<Type, List> getHeatSourcesForHeatLevel(int heatLevel) {
+        Map<Type, List> stackMap = new HashMap<>(); // I know...
+        Arrays.stream(Type.values()).forEach(type -> stackMap.put(type, new ArrayList<>()));
+
+        MelterConfig.HEAT_SOURCES.get().stream()
+            .filter(s -> Integer.valueOf(s.get(2)).equals(heatLevel))
+            .map(e -> new Config(Type.valueOf(e.get(0).toUpperCase()), e.get(1), Integer.valueOf(e.get(2)), e.get(3)))
+            .filter(e -> {
+                try {
+                    e.rl();
+                    return true;
+                }
+                catch (Exception ex) {
+                    System.out.println("Can't process name " + e.name);
+                    return false;
+                }
+            })
+            .forEach(e -> {
+                var rl = e.rl();
+
+                if (e.type.equals(Type.BLOCK)) {
+                    // Fire and Soul Fire don't really have a "Block" we can use to texture
+                    ItemStack is = switch(rl.toString()) {
+                        case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+                        case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+                        case "create:lit_blaze_burner" -> new ItemStack(AllBlocks.BLAZE_BURNER);
+                        default -> new ItemStack(ForgeRegistries.ITEMS.getValue(rl));
+                    };
+
+                    boolean isItemStackPresent = stackMap.get(Type.BLOCK).stream()
+                        .anyMatch(stack -> ((ItemStack) stack).is(is.getItem()));
+
+                    if (!isItemStackPresent && !is.getItem().equals(new ItemStack(Blocks.AIR).getItem())) {
+                        if (!e.description.isEmpty()) {
+                            stackMap.get(Type.BLOCK).add(is.setHoverName(
+                                is.getHoverName().copy().append(Component.literal(" (" + e.description + ")"))));
+                        }
+                        else {
+                            stackMap.get(Type.BLOCK).add(is);
+                        }
+                    }
+                }
+
+                if (e.type.equals(Type.FLUID)) {
+                    FluidStack fs = new FluidStack(ForgeRegistries.FLUIDS.getValue(rl), 1000);
+
+                    boolean isFluidStackPresent = stackMap.get(Type.FLUID).stream()
+                        .anyMatch(stack -> ((FluidStack) stack).isFluidEqual(fs));
+
+                    if (!isFluidStackPresent) {
+                        stackMap.get(Type.FLUID).add(fs);
+                    }
+                }
+            });
+
+        Boolean isMapEmpty = stackMap.values().stream()
+            .map(List::isEmpty)
+            .reduce(Boolean::logicalAnd)
+            .orElse(true);
+
+        if (isMapEmpty) {
+            stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER).setHoverName(Component.translatable("melter.tooltip.no_source_found"))));
+        }
+
+        return stackMap;
     }
 
     @Override
@@ -107,7 +175,14 @@ public enum HeatSources implements StringRepresentable {
         return super.toString();
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public record Config(Type type, String name, Integer level, String description) {
+        public ResourceLocation rl() {
+            // we split by '/' and get the first part, because we don't want the state
+            return new ResourceLocation(name.split("/")[0]);
+        }
+    }
+
+    public enum Type {
+        BLOCK, FLUID
     }
 }

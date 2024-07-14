@@ -1,9 +1,13 @@
 package com.oierbravo.melter.compat.jade;
 
 import com.oierbravo.melter.content.melter.MelterBlockEntity;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -24,11 +28,15 @@ public class ProgressComponentProvider  implements IBlockComponentProvider, ISer
             IProgressStyle progressStyle = elementHelper.progressStyle();
             if(progress > 0)
                 tooltip.add(elementHelper.progress((float)progress / 100, Component.translatable("melter.tooltip.progress", progress), progressStyle, BoxStyle.DEFAULT, true));
-            int heatMultiplier = accessor.getServerData().getInt("melter.multiplier");
-            if(heatMultiplier > 0) {
-                tooltip.add(Component.translatable("melter.tooltip.oneline",accessor.getServerData().getString("melter.displayName"), heatMultiplier));
+            int heatLevel = accessor.getServerData().getInt("melter.heat_level");
+            boolean isCreative = accessor.getServerData().getBoolean("melter.creative");
+            if (isCreative) {
+                tooltip.add(Component.translatable("melter.tooltip.heat_level").append(" ").append(Component.translatable("melter.tooltip.heat_level.creative")));
+            }
+            else if(heatLevel > 0) {
+                tooltip.add(Component.translatable("melter.tooltip.heat_level").append(Component.literal(" " + heatLevel).withStyle(ChatFormatting.GOLD)));
             } else {
-                tooltip.add(Component.translatable("melter.tooltip.multiplier_none"));
+                tooltip.add(Component.translatable("melter.tooltip.heat_level.none"));
             }
         }
 
@@ -41,13 +49,19 @@ public class ProgressComponentProvider  implements IBlockComponentProvider, ISer
 
     @Override
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
-        MelterBlockEntity blockEntity = (MelterBlockEntity) blockAccessor.getBlockEntity();
+        BlockEntity blockEntity = blockAccessor.getBlockEntity();
 
-        if(blockEntity != null){
+        if (blockEntity != null) {
             MelterBlockEntity melter = (MelterBlockEntity) blockEntity;
-            compoundTag.putInt("melter.progress",melter.getProgressPercent());
-            compoundTag.putInt("melter.multiplier",melter.getHeatSourceMultiplier());
-            compoundTag.putString("melter.displayName",melter.getHeatSourceDisplayName());
+
+            BlockState blockStateBelow = melter.getLevel().getBlockState(melter.getBlockPos().below());
+            Block below = blockStateBelow.getBlock();
+            String blockName = below.getName().getString();
+
+            compoundTag.putInt("melter.progress", melter.getProgressPercent());
+            compoundTag.putString("melter.heat_source_name", blockName);
+            compoundTag.putInt("melter.heat_level", melter.getHeatLevel());
+            compoundTag.putBoolean("melter.creative", melter.isCreative());
         }
     }
 }

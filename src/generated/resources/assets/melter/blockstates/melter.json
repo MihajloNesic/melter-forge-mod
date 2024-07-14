@@ -1,31 +1,40 @@
 {
   "variants": {
-    "heatesource=blaze_burner_active": {
-      "model": "melter:block/melter_blaze_burner_active"
+    "creative=true": {
+      "model": "melter:block/melter_creative"
     },
-    "heatesource=blaze_burner_fading": {
-      "model": "melter:block/melter_blaze_burner_fading"
+    "heatsource=0,creative=false": {
+      "model": "melter:block/melter_no_heat"
     },
-    "heatesource=blaze_burner_inactive": {
-      "model": "melter:block/melter_blaze_burner_inactive"
+    "heatsource=1,creative=false": {
+      "model": "melter:block/melter_heat1"
     },
-    "heatesource=blaze_burner_superheated": {
-      "model": "melter:block/melter_blaze_burner_superheated"
+    "heatsource=2,creative=false": {
+      "model": "melter:block/melter_heat2"
     },
-    "heatesource=campfire": {
-      "model": "melter:block/melter_campfire"
+    "heatsource=3,creative=false": {
+      "model": "melter:block/melter_heat3"
     },
-    "heatesource=lava": {
-      "model": "melter:block/melter_lava"
+    "heatsource=4,creative=false": {
+      "model": "melter:block/melter_heat4"
     },
-    "heatesource=none": {
-      "model": "melter:block/melter_none"
+    "heatsource=5,creative=false": {
+      "model": "melter:block/melter_really_hot"
     },
-    "heatesource=torch": {
-      "model": "melter:block/melter_torch"
+    "heatsource=6,creative=false": {
+      "model": "melter:block/melter_really_hot"
     },
-    "heatesource=wall_torch": {
-      "model": "melter:block/melter_wall_torch"
+    "heatsource=7,creative=false": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "heatsource=8,creative=false": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "heatsource=9,creative=false": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "heatsource=10,creative=false": {
+      "model": "melter:block/melter_really_hot"
     }
   }
 }

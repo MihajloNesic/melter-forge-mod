@@ -1,5 +1,6 @@
 package com.oierbravo.melter.content.melter;
 
+import com.jozufozu.flywheel.util.transform.TransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -37,11 +39,17 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         }
 
         ItemStack itemStack = pBlockEntity.getItemHandler().getStackInSlot(0);
+
         if(!itemStack.isEmpty()){
-
             pPoseStack.pushPose();
-            pPoseStack.translate(0.5d,  0.8d * percent, 0.5d);
-
+            if (itemStack.getItem() instanceof BlockItem) {
+                pPoseStack.translate(0.5d, 0.8d * percent, 0.5d);
+            }
+            else {
+                TransformStack msr = TransformStack.cast(pPoseStack);
+                pPoseStack.translate(0.5d, 0.8d * percent + 0.175d, 0.6d);
+                msr.rotateX(-90);
+            }
             this.renderBlock(pPoseStack,pBufferSource,pPackedLight,pPackedOverlay,itemStack,pBlockEntity);
             pPoseStack.popPose();
         }
@@ -50,7 +58,7 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
     }
     private void renderFluidInTank(BlockAndTintGetter world, BlockPos pos, FluidStack fluidStack, PoseStack matrix, MultiBufferSource buffer, float percent) {
         matrix.pushPose();
-        matrix.translate(0.5d, 0.5d, 0.5d);
+        matrix.translate(0.5d, 0.565d, 0.5d);
         Matrix4f matrix4f = matrix.last().pose();
         Matrix3f matrix3f = matrix.last().normal();
 
@@ -75,7 +83,7 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         float a = ((color >> 24) & 0xFF) / 255f;
 
         float width = 10 / 16f;
-        float height = 14 / 16f;
+        float height = 12 / 16f;
 
         float minU = sprite.getU(4);
         float maxU = sprite.getU(16);
