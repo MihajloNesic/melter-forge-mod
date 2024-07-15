@@ -8,16 +8,40 @@ Not providing any recipe at the moment.
 
 Designed to work with create but it's optional.
 
-High tier heat sources are from Create.
+
+Huge thanks to [MihajloNesic](https://github.com/MihajloNesic) for the big contribution to the mod.
 
 ## Heat sources.
-- None (0)
-- Torch (1)
-- Campfire (2)
-- Lava (4)
-- Blaze burner Inactive (8)
-- Blaze burner Active (10)
-- Blaze burner SuperHeated (16)
+- See JEI
+
+### Heat source config
+```
+#Settings for the melter
+[melter]
+#How much liquid fits into the melter, in mB
+#Range: > 1
+capacity = 1000
+#How much liquid generates per tick, in mB
+#Range: > 1
+liquidPerTick = 2
+#List of heat source blocks or fluids. Each element in a list must follow the order: type (block, fluid), name, heat level (1-10), additional information shown in JEI
+heatSources = [
+	["block", "minecraft:torch", "1", ""],
+	["block", "minecraft:soul_torch", "1", ""],
+	["block", "minecraft:wall_torch", "1", ""],
+	["block", "minecraft:soul_wall_torch", "1", ""],
+	["block", "minecraft:fire", "2", ""],
+	["block", "minecraft:soul_fire", "2", ""],
+	["block", "minecraft:campfire", "2", ""],
+	["block", "minecraft:soul_campfire", "2", ""],
+	["block", "minecraft:magma_block", "3", ""],
+	["fluid", "minecraft:lava", "4", ""],
+	["block", "create:lit_blaze_burner", "2", "Lit"],
+	["block", "create:blaze_burner/fading", "3", "Heated"],
+	["block", "create:blaze_burner/kindled", "3", "Heated"],
+	["block", "create:blaze_burner/seething", "5", "Super-Heated"]
+]
+```
 
 ## Recipe example:
 ```
