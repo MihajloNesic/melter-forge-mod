@@ -1,8 +1,8 @@
 package com.oierbravo.melter.content.melter;
 
-import com.jozufozu.flywheel.util.transform.TransformStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -24,6 +24,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntity> {
+
     public MelterBlockRenderer(BlockEntityRendererProvider.Context context) {
     }
 
@@ -46,9 +47,8 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
                 pPoseStack.translate(0.5d, 0.8d * percent, 0.5d);
             }
             else {
-                TransformStack msr = TransformStack.cast(pPoseStack);
                 pPoseStack.translate(0.5d, 0.8d * percent + 0.175d, 0.6d);
-                msr.rotateX(-90);
+                pPoseStack.rotateAround(Axis.XN.rotationDegrees(90), 0, 0, 0);
             }
             this.renderBlock(pPoseStack,pBufferSource,pPackedLight,pPackedOverlay,itemStack,pBlockEntity);
             pPoseStack.popPose();
