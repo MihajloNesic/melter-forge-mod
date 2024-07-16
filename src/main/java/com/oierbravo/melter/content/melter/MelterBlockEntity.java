@@ -34,9 +34,8 @@ import java.util.Optional;
 
 public class MelterBlockEntity extends BlockEntity  {
 
-
     private final int FLUID_CAPACITY = MelterConfig.MELTER_CAPACITY.get();
-    private static final int FLIUD_PER_TICK = MelterConfig.MELTER_FLUID_PER_TICK.get();
+
     private CompoundTag updateTag;
     public final ItemStackHandler inputItems = createInputItemHandler();
     private final LazyOptional<IItemHandler> inputItemHandler = LazyOptional.of(() -> inputItems);
@@ -47,6 +46,7 @@ public class MelterBlockEntity extends BlockEntity  {
     public int progress = 0;
     public int maxProgress = 200;
     private BlockState lastBlockState;
+
     public MelterBlockEntity(BlockEntityType<?> pType, BlockPos pWorldPosition, BlockState pBlockState) {
         super(pType, pWorldPosition, pBlockState);
         updateTag = getPersistentData();

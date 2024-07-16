@@ -7,7 +7,6 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 public class MelterConfig {
     public static ForgeConfigSpec.IntValue MELTER_CAPACITY;
-    public static ForgeConfigSpec.IntValue MELTER_FLUID_PER_TICK;
     public static ConfigValue<List<? extends List<? extends String>>> HEAT_SOURCES;
 
     public static void registerServerConfig(ForgeConfigSpec.Builder builder) {
@@ -15,9 +14,6 @@ public class MelterConfig {
         MELTER_CAPACITY = builder
                 .comment("How much liquid fits into the melter, in mB")
                 .defineInRange("capacity", 1000, 1, Integer.MAX_VALUE);
-        MELTER_FLUID_PER_TICK = builder
-                .comment("How much liquid generates per tick, in mB")
-                .defineInRange("liquidPerTick", 2, 1, Integer.MAX_VALUE);
         HEAT_SOURCES = builder
                 .comment("List of heat source blocks or fluids. Each element in a list must follow the order: type (block, fluid), name, heat level (1-10), additional information shown in JEI")
                 .defineList("heatSources", Arrays.asList(
