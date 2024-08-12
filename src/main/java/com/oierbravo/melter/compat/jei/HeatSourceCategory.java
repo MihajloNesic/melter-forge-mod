@@ -109,7 +109,7 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
         List<Recipe> recipes = new ArrayList<>();
 
         for (HeatSources.Config hs : HeatSources.getHeatSourcesConfig()) {
-            Melter.LOGGER.info("processing: " + hs.name());
+            Melter.LOGGER.info("processing heat source: " + hs.name());
             var rl = hs.rl();
             if (hs.type().equals(HeatSources.Type.BLOCK)) {
                 var item = BuiltInRegistries.ITEM.get(rl);
@@ -135,9 +135,13 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
                         case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
                         case "minecraft:wall_torch" -> new ItemStack(Items.TORCH);
                         case "minecraft:soul_wall_torch" -> new ItemStack(Items.SOUL_TORCH);
-                        case "create:lit_blaze_burner" -> new ItemStack(AllBlocks.BLAZE_BURNER);
+                        case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
                         default -> new ItemStack(block);
                     };
+
+                    if (is.is(Blocks.AIR.asItem())) {
+                        continue;
+                    }
 
                     boolean isItemStackPresent = recipes.stream()
                         .filter(r -> r.block != null)
@@ -145,7 +149,7 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
 
                     if (!isItemStackPresent) {
                         recipes.add(new Recipe(is, null, heat, hs.description()));
-                        Melter.LOGGER.info("added block: " + hs.name());
+                        Melter.LOGGER.info("added heat source block: " + hs.name());
                     }
                 }
             }
@@ -166,7 +170,7 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
 
                     if (!isFluidStackPresent) {
                         recipes.add(new Recipe(null, fs, heat, hs.description()));
-                        Melter.LOGGER.info("added fluid: " + hs.name());
+                        Melter.LOGGER.info("added heat source fluid: " + hs.name());
                     }
                 }
             }

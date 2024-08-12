@@ -67,12 +67,21 @@ public class HeatSources {
         }
 
         // fluid
+        int liquidLevel = 0;
         if (block instanceof LiquidBlock liquidBlock) {
             ResourceLocation fluidRL = BuiltInRegistries.FLUID.getKey(liquidBlock.getFluid());
             blockName = fluidRL.toString();
+
+            if (!liquidBlock.getFluidState(state).isSource()) {
+                liquidLevel = state.getValue(LiquidBlock.LEVEL);
+            }
         }
+        float liquidLevelDecay = liquidLevel <= 0 ? 1 : liquidLevel + 1.2f; // 1.2 is some small delta for the 'decay'
 
         int heatLevel = getHeatSourceMap().getOrDefault(blockName, 0);
+
+        // subtract fluid level decay; if liquidLevel is 0, heatLevel is returned
+        heatLevel = (int)((float)heatLevel / liquidLevelDecay);
 
         return heatLevel;
     }
@@ -80,7 +89,16 @@ public class HeatSources {
     public static List<Config> getHeatSourcesConfig() {
         return MelterConfig.HEAT_SOURCES.get()
             .stream()
-            .map(s -> new Config(Type.valueOf(s.get(0).toUpperCase()), s.get(1), Integer.valueOf(s.get(2)), s.get(3)))
+            .map(s -> {
+                try {
+                    return new Config(Type.valueOf(s.get(0).toUpperCase()), s.get(1), Integer.valueOf(s.get(2)), s.get(3));
+                }
+                catch (Exception e) {
+                    Melter.LOGGER.error("Failed to load heat source: {}", s);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
             .toList();
     }
 
@@ -107,6 +125,11 @@ public class HeatSources {
         Map<Type, List> stackMap = new HashMap<>(); // I know...
         Arrays.stream(Type.values()).forEach(type -> stackMap.put(type, new ArrayList<>()));
 
+        if (heatLevel > 20) {
+            stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER).setHoverName(Component.translatable("melter.tooltip.no_source_found"))));
+            return stackMap;
+        }
+
         MelterConfig.HEAT_SOURCES.get().stream()
             .filter(s -> Integer.valueOf(s.get(2)).equals(heatLevel))
             .map(e -> new Config(Type.valueOf(e.get(0).toUpperCase()), e.get(1), Integer.valueOf(e.get(2)), e.get(3)))
@@ -116,7 +139,7 @@ public class HeatSources {
                     return true;
                 }
                 catch (Exception ex) {
-                    System.out.println("Can't process name " + e.name);
+                    Melter.LOGGER.error("Can't process name '{}'", e.name);
                     return false;
                 }
             })
@@ -128,7 +151,7 @@ public class HeatSources {
                     ItemStack is = switch(rl.toString()) {
                         case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
                         case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
-                        case "create:lit_blaze_burner" -> new ItemStack(AllBlocks.BLAZE_BURNER);
+                        case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
                         default -> new ItemStack(ForgeRegistries.ITEMS.getValue(rl));
                     };
 
@@ -164,7 +187,8 @@ public class HeatSources {
             .orElse(true);
 
         if (isMapEmpty) {
-            stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER).setHoverName(Component.translatable("melter.tooltip.no_source_found"))));
+            //stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER).setHoverName(Component.translatable("melter.tooltip.no_source_found"))));
+            return getHeatSourcesForHeatLevel(heatLevel + 1);
         }
 
         return stackMap;
