@@ -2,23 +2,17 @@ package com.oierbravo.melter.content.melter;
 
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.registrate.ModBlocks;
-import com.simibubi.create.AllBlocks;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.*;
 
@@ -59,20 +53,21 @@ public class HeatSources {
         // create
         if (Melter.withCreate) {
             // blaze burner
-            if (state.hasProperty(BlazeBurnerBlock.HEAT_LEVEL)) {
+
+          /*  if (state.hasProperty(BlazeBurnerBlock.HEAT_LEVEL)) {
                 BlazeBurnerBlock.HeatLevel heatLevel = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
                 // can't have a second colon here, see ResourceLocation#assertValidNamespace
                 blockName += "/" + heatLevel.getSerializedName();
-            }
+            }*/
         }
 
         // fluid
         int liquidLevel = 0;
         if (block instanceof LiquidBlock liquidBlock) {
-            ResourceLocation fluidRL = BuiltInRegistries.FLUID.getKey(liquidBlock.getFluid());
+            ResourceLocation fluidRL = BuiltInRegistries.FLUID.getKey(liquidBlock.fluid.getSource());
             blockName = fluidRL.toString();
 
-            if (!liquidBlock.getFluidState(state).isSource()) {
+            if (!state.getFluidState().isSource()) {
                 liquidLevel = state.getValue(LiquidBlock.LEVEL);
             }
         }
@@ -126,7 +121,8 @@ public class HeatSources {
         Arrays.stream(Type.values()).forEach(type -> stackMap.put(type, new ArrayList<>()));
 
         if (heatLevel > 20) {
-            stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER).setHoverName(Component.translatable("melter.tooltip.no_source_found"))));
+            stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER)));
+            //stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER).setHoverName(Component.translatable("melter.tooltip.no_source_found"))));
             return stackMap;
         }
 
@@ -149,10 +145,10 @@ public class HeatSources {
                 if (e.type.equals(Type.BLOCK)) {
                     // Fire and Soul Fire don't really have a "Block" we can use to texture
                     ItemStack is = switch(rl.toString()) {
-                        case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-                        case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
-                        case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
-                        default -> new ItemStack(ForgeRegistries.ITEMS.getValue(rl));
+                        //case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+                        //case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+                        //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
+                        default -> new ItemStack(BuiltInRegistries.ITEM.get(rl));
                     };
 
                     boolean isItemStackPresent = stackMap.get(Type.BLOCK).stream()
@@ -160,8 +156,11 @@ public class HeatSources {
 
                     if (!isItemStackPresent && !is.getItem().equals(new ItemStack(Blocks.AIR).getItem())) {
                         if (!e.description.isEmpty()) {
-                            stackMap.get(Type.BLOCK).add(is.setHoverName(
-                                is.getHoverName().copy().append(Component.literal(" (" + e.description + ")"))));
+//                            stackMap.get(Type.BLOCK)
+  //                                          is.getItem().appendHoverText(is, Item.TooltipContext.EMPTY,)
+    //                                                .appendHoverText(is,Component.literal(" (" + e.description + ")"))
+      //                              );
+                                //is.getHoverName().copy().append();
                         }
                         else {
                             stackMap.get(Type.BLOCK).add(is);
@@ -170,10 +169,10 @@ public class HeatSources {
                 }
 
                 if (e.type.equals(Type.FLUID)) {
-                    FluidStack fs = new FluidStack(ForgeRegistries.FLUIDS.getValue(rl), 1000);
+                    FluidStack fs = new FluidStack(BuiltInRegistries.FLUID.get(rl), 1000);
 
                     boolean isFluidStackPresent = stackMap.get(Type.FLUID).stream()
-                        .anyMatch(stack -> ((FluidStack) stack).isFluidEqual(fs));
+                        .anyMatch(stack -> ((FluidStack) stack).is(fs.getFluidType()));
 
                     if (!isFluidStackPresent) {
                         stackMap.get(Type.FLUID).add(fs);
@@ -202,7 +201,7 @@ public class HeatSources {
     public record Config(Type type, String name, Integer level, String description) {
         public ResourceLocation rl() {
             // we split by '/' and get the first part, because we don't want the state
-            return new ResourceLocation(name.split("/")[0]);
+            return ResourceLocation.parse(name.split("/")[0]);
         }
     }
 

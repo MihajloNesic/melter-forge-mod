@@ -1,15 +1,15 @@
 package com.oierbravo.melter.content.melter;
 
+import net.neoforged.neoforge.common.ModConfigSpec;
+
 import java.util.Arrays;
 import java.util.List;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 public class MelterConfig {
-    public static ForgeConfigSpec.IntValue MELTER_CAPACITY;
-    public static ConfigValue<List<? extends List<? extends String>>> HEAT_SOURCES;
+    public static ModConfigSpec.IntValue MELTER_CAPACITY;
+    public static ModConfigSpec.ConfigValue<List<? extends List<? extends String>>> HEAT_SOURCES;
 
-    public static void registerServerConfig(ForgeConfigSpec.Builder builder) {
+    public static void registerServerConfig(ModConfigSpec.Builder builder) {
         builder.comment("Settings for the melter").push("melter");
         MELTER_CAPACITY = builder
                 .comment("How much liquid fits into the melter, in mB")

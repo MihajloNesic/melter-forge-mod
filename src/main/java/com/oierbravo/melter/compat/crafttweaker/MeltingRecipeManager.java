@@ -7,15 +7,18 @@ import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.blamejared.crafttweaker.api.fluid.IFluidStack;
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import com.blamejared.crafttweaker.api.recipe.manager.base.IRecipeManager;
+import com.blamejared.crafttweaker_annotations.annotations.Document;
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.content.melter.MeltingRecipe;
+import com.oierbravo.melter.registrate.ModRecipes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import org.openzen.zencode.java.ZenCodeType;
 
 @ZenRegister
 @ZenCodeType.Name("mods.melter.MeltingManager")
-//@Document("mods/melter/melting")
+@Document("mods/melter/melting")
 public class MeltingRecipeManager implements IRecipeManager<MeltingRecipe> {
     /**
      * Adds a Melting recipe.
@@ -35,12 +38,12 @@ public class MeltingRecipeManager implements IRecipeManager<MeltingRecipe> {
     @ZenCodeType.Method
     public void addRecipe(String name, IFluidStack output, IIngredient input, int processingTime, int heatLevel   ){
         name = fixRecipeName(name);
-        ResourceLocation resourceLocation = new ResourceLocation(Melter.MODID, name);
-        CraftTweakerAPI.apply(new ActionAddRecipe<>( this, new MeltingRecipe(resourceLocation, output.getInternal(), input.asVanillaIngredient(), processingTime, heatLevel)));
+        ResourceLocation resourceLocation = ResourceLocation.fromNamespaceAndPath(Melter.MODID, name);
+        CraftTweakerAPI.apply(new ActionAddRecipe<>( this, new RecipeHolder<>(resourceLocation, new MeltingRecipe(output.getInternal(), input.asVanillaIngredient(), processingTime, heatLevel))));
     }
 
     @Override
     public RecipeType<MeltingRecipe> getRecipeType() {
-        return MeltingRecipe.Type.INSTANCE;
+        return ModRecipes.MELTING_TYPE.get();
     }
 }

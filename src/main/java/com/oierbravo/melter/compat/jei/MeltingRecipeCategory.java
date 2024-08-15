@@ -7,18 +7,18 @@ import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.content.melter.HeatSources;
 import com.oierbravo.melter.content.melter.MeltingRecipe;
 import com.oierbravo.melter.registrate.ModBlocks;
+import mezz.jei.api.constants.ModIds;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableAnimated;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.common.Constants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -29,7 +29,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
@@ -37,7 +37,11 @@ import java.util.List;
 import java.util.Map;
 
 public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
-    public final static ResourceLocation UID = new ResourceLocation(Melter.MODID, "melting");
+
+    public final static RecipeType<MeltingRecipe> TYPE = RecipeType.create("melter", "melting", MeltingRecipe.class );
+
+
+    public final static ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(Melter.MODID, "melting");
     private final LoadingCache<Integer, IDrawableAnimated> cachedArrows;
 
     private final IDrawable background;
@@ -54,7 +58,7 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
                 .build(new CacheLoader<>() {
                     @Override
                     public IDrawableAnimated load(Integer cookTime) {
-                        return helper.drawableBuilder(Constants.RECIPE_GUI_VANILLA, 82, 128, 24, 17)
+                        return helper.drawableBuilder(ResourceLocation.fromNamespaceAndPath(ModIds.JEI_ID,"textures/jei/gui/gui_vanilla.png"), 82, 128, 24, 17)
                                 .buildAnimated(cookTime, IDrawableAnimated.StartDirection.LEFT, false);
                     }
                 });
@@ -115,13 +119,13 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, getWidth()-inputSlotOffsetX - slotDrawable.getWidth(), 14)
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.literal(recipe.getOutput().getAmount() + "mB").withStyle(ChatFormatting.GOLD)) )
-                .addIngredients(ForgeTypes.FLUID_STACK, fluidList)
+                .addIngredients(NeoForgeTypes.FLUID_STACK, fluidList)
                 .setBackground(slotDrawable, -1, -1);
         
         Map<HeatSources.Type, List> heatSourceStacks = HeatSources.getHeatSourcesForHeatLevel(recipe.getHeatLevel());
         builder.addSlot(RecipeIngredientRole.RENDER_ONLY,getWidth()/2 - slotDrawable.getWidth()/2,38)
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.translatable("jei.melting.recipe.minimum_heat", recipe.getHeatLevel()).withStyle(ChatFormatting.GOLD)))
-                .addIngredients(ForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSources.Type.FLUID))
+                .addIngredients(NeoForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSources.Type.FLUID))
                 .addItemStacks((List<ItemStack>) heatSourceStacks.get(HeatSources.Type.BLOCK))
                 .setBackground(slotDrawable, -1, -1);
     }

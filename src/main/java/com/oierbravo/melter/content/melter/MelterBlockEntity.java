@@ -1,30 +1,29 @@
 package com.oierbravo.melter.content.melter;
 
-import com.oierbravo.melter.network.packets.FluidStackSyncS2CPacket;
-import com.oierbravo.melter.network.packets.ItemStackSyncS2CPacket;
+import com.oierbravo.melter.network.packets.data.FluidSyncPayload;
+import com.oierbravo.melter.network.packets.data.ItemSyncPayload;
 import com.oierbravo.melter.registrate.ModMessages;
 import com.oierbravo.melter.registrate.ModRecipes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.templates.FluidTank;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
+import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,11 +37,10 @@ public class MelterBlockEntity extends BlockEntity  {
 
     private CompoundTag updateTag;
     public final ItemStackHandler inputItems = createInputItemHandler();
-    private final LazyOptional<IItemHandler> inputItemHandler = LazyOptional.of(() -> inputItems);
+    private final Lazy<IItemHandler> inputItemHandler = Lazy.of(() -> inputItems);
 
     private final FluidTank fluidTankHandler = createFluidTank();
-    //private final LazyOptional<IFluidHandler> lazyFluidHandler = LazyOptional.of(() -> fluidTankHandler);
-    private LazyOptional<IFluidHandler> outputFluidHandler = LazyOptional.of(() -> fluidTankHandler);
+    private Lazy<IFluidHandler> outputFluidHandler = Lazy.of(() -> fluidTankHandler);
     public int progress = 0;
     public int maxProgress = 200;
     private BlockState lastBlockState;
@@ -60,7 +58,7 @@ public class MelterBlockEntity extends BlockEntity  {
             protected void onContentsChanged() {
                 setChanged();
                 if(!level.isClientSide()) {
-                    ModMessages.sendToClients(new FluidStackSyncS2CPacket(this.fluid, worldPosition));
+                    ModMessages.sendToAllClients(new FluidSyncPayload(getFluid(), worldPosition));
                 }
             }
 
@@ -74,28 +72,14 @@ public class MelterBlockEntity extends BlockEntity  {
             protected void onContentsChanged(int slot) {
                 setChanged();
                 if(!level.isClientSide()) {
-                    ModMessages.sendToClients(new ItemStackSyncS2CPacket(this.getStackInSlot(0), worldPosition));
+                    ModMessages.sendToAllClients(new ItemSyncPayload(this.getStackInSlot(0),worldPosition));
                 }
-               // clientSync();
             }
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
                 return canProcess(stack) && super.isItemValid(slot, stack);
             }
         };
-    }
-    @Override
-    public <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return inputItemHandler.cast();
-        }
-        if (cap == ForgeCapabilities.FLUID_HANDLER) {
-            return outputFluidHandler.cast();
-        }
-        if (cap == ForgeCapabilities.FLUID_HANDLER_ITEM) {
-            return outputFluidHandler.cast();
-        }
-        return super.getCapability(cap, side);
     }
 
     @Override
@@ -110,32 +94,30 @@ public class MelterBlockEntity extends BlockEntity  {
     }
 
     @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
+    public void invalidateCapabilities() {
+        super.invalidateCapabilities();
         inputItemHandler.invalidate();
         outputFluidHandler.invalidate();
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag) {
-
-        tag.put("input", inputItems.serializeNBT());
-        fluidTankHandler.writeToNBT(tag);
+    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.put("input", inputItems.serializeNBT(registries));
+        fluidTankHandler.writeToNBT(registries, tag);
         tag.putInt("output", fluidTankHandler.getCapacity());
         tag.putInt("melter.progress", progress);
         tag.putInt("melter.maxProgress", maxProgress);
-        super.saveAdditional(tag);
-        updateTag = tag;
     }
 
     @Override
-    public void load(CompoundTag tag) {
-        super.load(tag);
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
         if (tag.contains("input")) {
-            inputItems.deserializeNBT(tag.getCompound("input"));
+            inputItems.deserializeNBT(registries, tag.getCompound("input"));
         }
         if (tag.contains("output")) {
-            fluidTankHandler.readFromNBT(tag);
+            fluidTankHandler.readFromNBT(registries, tag);
             fluidTankHandler.setCapacity(tag.getInt("output"));
         }
 
@@ -166,10 +148,8 @@ public class MelterBlockEntity extends BlockEntity  {
 
     protected int getProcessingTime(MelterBlockEntity pBlockEntity) {
         Level level = pBlockEntity.getLevel();
-        SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
-        inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
-
-        return level.getRecipeManager().getRecipeFor(MeltingRecipe.Type.INSTANCE, inputInventory, level).map(MeltingRecipe::getProcessingTime).orElse(200);
+        SingleRecipeInput input = new SingleRecipeInput(pBlockEntity.inputItems.getStackInSlot(0));
+        return level.getRecipeManager().getRecipeFor(ModRecipes.MELTING_TYPE.get(), input, level).get().value().getProcessingTime();
     }
 
     public static void tick(Level pLevel, BlockPos pPos, BlockState pState, MelterBlockEntity pBlockEntity) {
@@ -191,17 +171,15 @@ public class MelterBlockEntity extends BlockEntity  {
                 return;
             }
 
-            SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
-            inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
-            Optional<MeltingRecipe> match = ModRecipes.find(inputInventory, pLevel);
-            int heatLevel = match.get().getHeatLevel();
+            SingleRecipeInput input = new SingleRecipeInput(pBlockEntity.inputItems.getStackInSlot(0));
+            Optional<RecipeHolder<MeltingRecipe>> match = ModRecipes.find(input, pLevel);
+            int heatLevel = match.get().value().getHeatLevel();
             int diff = heatSource - heatLevel;
             int bonus = Math.max(diff, 0) * 2; // 2 ticks bonus per level above needed
 
             pBlockEntity.progress += 1 + bonus;
 
             BlockEntity.setChanged(pLevel, pPos, pState);
-            // pBlockEntity.clientSync();
             pBlockEntity.maxProgress = processingTime;
 
             if (pBlockEntity.progress >= pBlockEntity.maxProgress) {
@@ -210,7 +188,6 @@ public class MelterBlockEntity extends BlockEntity  {
         } else {
             pBlockEntity.resetProgress();
             BlockEntity.setChanged(pLevel, pPos, pState);
-            //pBlockEntity.clientSync();
         }
     }
 
@@ -231,30 +208,25 @@ public class MelterBlockEntity extends BlockEntity  {
             .setValue(MelterBlock.CREATIVE, HeatSources.isCreative(getLevel(), pos.below()));
         if(!pLastState.equals(newState)){
             this.getLevel().setBlock(pos,newState,Block.UPDATE_ALL);
-            //clientSync();
         }
     }
     private static void craftFluid(MelterBlockEntity pBlockEntity) {
 
         Level level = pBlockEntity.getLevel();
-        SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
-        inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
+        SingleRecipeInput input = new SingleRecipeInput(pBlockEntity.inputItems.getStackInSlot(0));
 
-        Optional<MeltingRecipe> recipe = level.getRecipeManager()
-                .getRecipeFor(MeltingRecipe.Type.INSTANCE, inputInventory, level);
+        Optional<RecipeHolder<MeltingRecipe>> recipe = ModRecipes.find(input, level);
 
         if(recipe.isPresent()){
-            int ingredientAmount = recipe.get().getIngredients().get(0).getItems()[0].getCount();
+            int ingredientAmount = recipe.get().value().getIngredient().getItems()[0].getCount();
             pBlockEntity.inputItems.extractItem(0, ingredientAmount, false);
 
-            FluidStack output = recipe.get().getOutputFluidStack();
-            //pBlockEntity.fluidTankHandler.fill( new FluidStack(output, output.getAmount()), IFluidHandler.FluidAction.EXECUTE);
+            FluidStack output = recipe.get().value().getOutput();
             pBlockEntity.fluidTankHandler.fill( new FluidStack(output.getFluid(),output.getAmount()),IFluidHandler.FluidAction.EXECUTE);
         }
 
         pBlockEntity.resetProgress();
         pBlockEntity.setChanged();
-        //pBlockEntity.clientSync();
     }
 
 
@@ -262,34 +234,28 @@ public class MelterBlockEntity extends BlockEntity  {
         Level level = pBlockEntity.getLevel();
         if(level == null)
             return false;
-        SimpleContainer inputInventory = new SimpleContainer(pBlockEntity.inputItems.getSlots());
-        inputInventory.setItem(0, pBlockEntity.inputItems.getStackInSlot(0));
-
-        Optional<MeltingRecipe> match = ModRecipes.find(inputInventory,level);
+        SingleRecipeInput input = new SingleRecipeInput(pBlockEntity.inputItems.getStackInSlot(0));
+        Optional<RecipeHolder<MeltingRecipe>> match = ModRecipes.find(input,level);
         if(match.isEmpty()) {
             return false;
         }
 
-        int heatLevel = match.get().getHeatLevel();
+        int heatLevel = match.get().value().getHeatLevel();
 
-        return match.isPresent()
-                && MelterBlockEntity.hasEnoughInputItems(inputInventory,match.get().getIngredients().get(0).getItems()[0].getCount())
-                && MelterBlockEntity.canInsertFluidAmountIntoOutput(pBlockEntity.fluidTankHandler, match.get().getOutputFluidStack(),match.get().getOutputFluidAmount())
-                && MelterBlockEntity.hasEnoughOutputSpace(pBlockEntity.fluidTankHandler,match.get().getOutputFluidAmount())
-                && MelterBlockEntity.isEmptyOrHasSameFluid(pBlockEntity.fluidTankHandler,  match.get().getOutputFluidStack())
+        return MelterBlockEntity.hasEnoughInputItems(input,match.get().value().getIngredient().getItems()[0].getCount())
+                && MelterBlockEntity.canInsertFluidAmountIntoOutput(pBlockEntity.fluidTankHandler, match.get().value().getOutput(),match.get().value().getOutputFluidAmount())
+                && MelterBlockEntity.hasEnoughOutputSpace(pBlockEntity.fluidTankHandler,match.get().value().getOutputFluidAmount())
+                && MelterBlockEntity.isEmptyOrHasSameFluid(pBlockEntity.fluidTankHandler,  match.get().value().getOutput())
                 && MelterBlockEntity.hasHeatSourceBelow(pBlockEntity)
                 && MelterBlockEntity.hasMinimumHeatSource(heatLevel, pBlockEntity);
     }
 
     private boolean canProcess(ItemStack stack) {
-
-        SimpleContainer inputInventory = new SimpleContainer(1);
-        inputInventory.setItem(0, stack);
-
-        return ModRecipes.find(inputInventory,level).isPresent();
+        SingleRecipeInput input = new SingleRecipeInput(stack);
+        return ModRecipes.find(input,level).isPresent();
     }
-    protected static boolean hasEnoughInputItems(SimpleContainer inventory, int count){
-        return inventory.getItem(0).getCount() >= count;
+    protected static boolean hasEnoughInputItems(SingleRecipeInput input, int count){
+        return input.getItem(0).getCount() >= count;
     }
 
 
@@ -301,7 +267,7 @@ public class MelterBlockEntity extends BlockEntity  {
     }
 
     protected static boolean isEmptyOrHasSameFluid(FluidTank tank, FluidStack fluidStack) {
-        return tank.isEmpty() || tank.getFluid().equals(fluidStack);
+        return tank.isEmpty() || tank.getFluid().is(fluidStack.getFluidType());
     }
 
     protected static boolean hasHeatSourceBelow(MelterBlockEntity pBlockEntity){
@@ -318,9 +284,9 @@ public class MelterBlockEntity extends BlockEntity  {
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        this.saveAdditional(updateTag);
-        return updateTag;
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
+
     }
 
     @Nullable
@@ -328,30 +294,6 @@ public class MelterBlockEntity extends BlockEntity  {
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-
-    @Override
-    public void handleUpdateTag(CompoundTag tag) {
-        this.load(tag);
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        this.load(pkt.getTag());
-    }
-
-    /*public void clientSync() {
-        if (Objects.requireNonNull(this.getLevel()).isClientSide) {
-            return;
-        }
-        ServerLevel world = (ServerLevel) this.getLevel();
-        Stream<ServerPlayer> entities = world.getChunkSource().chunkMap.getPlayers(new ChunkPos(this.worldPosition), false).stream();
-        Packet<ClientGamePacketListener> updatePacket = this.getUpdatePacket();
-        entities.forEach(e -> {
-            if (updatePacket != null) {
-                e.connection.send(updatePacket);
-            }
-        });
-    }*/
 
     public IFluidHandler getFluidHandler() {
         return fluidTankHandler;
@@ -370,5 +312,9 @@ public class MelterBlockEntity extends BlockEntity  {
 
     public void setItemStack(ItemStack itemStack) {
         inputItems.setStackInSlot(0,itemStack);
+    }
+
+    public Lazy<IItemHandler> getItemHandlerCapability() {
+        return inputItemHandler;
     }
 }

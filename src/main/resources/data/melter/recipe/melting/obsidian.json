@@ -1,0 +1,13 @@
+{
+  "type": "melter:melting",
+  "input": {
+    "item": "minecraft:obsidian",
+    "count": 1
+  },
+  "output": {
+    "id": "minecraft:lava",
+    "amount": 1000
+  },
+  "processingTime": 400,
+  "minimumHeat": 1
+}

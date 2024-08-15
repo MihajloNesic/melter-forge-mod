@@ -3,6 +3,7 @@ package com.oierbravo.melter.compat.jei;
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.content.melter.MeltingRecipe;
 import com.oierbravo.melter.registrate.ModBlocks;
+import com.oierbravo.melter.registrate.ModRecipes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
@@ -24,7 +25,7 @@ public class JEIPlugin implements IModPlugin {
 
     @Override
     public ResourceLocation getPluginUid() {
-        return new ResourceLocation(Melter.MODID, "jei_plugin");
+        return ResourceLocation.fromNamespaceAndPath(Melter.MODID, "jei_plugin");
     }
 
     @Override
@@ -43,8 +44,8 @@ public class JEIPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         RecipeManager rm = Objects.requireNonNull(Minecraft.getInstance().level).getRecipeManager();
 
-        List<MeltingRecipe> meltingRecipes = rm.getAllRecipesFor(MeltingRecipe.Type.INSTANCE);
-        registration.addRecipes(new RecipeType<>(MeltingRecipeCategory.UID, MeltingRecipe.class), meltingRecipes);
+        List<MeltingRecipe> meltingRecipes = rm.getAllRecipesFor(ModRecipes.MELTING_TYPE.get()).stream().map(meltingRecipeRecipeHolder -> meltingRecipeRecipeHolder.value()).toList();
+        registration.addRecipes(MeltingRecipeCategory.TYPE, meltingRecipes);
         registration.addRecipes(HeatSourceCategory.TYPE, HeatSourceCategory.getRecipes());
 
         registration.addIngredientInfo(new ItemStack(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK), VanillaTypes.ITEM_STACK, Component.translatable("creative_heat_source.info"));

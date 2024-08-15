@@ -3,10 +3,6 @@ package com.oierbravo.melter.compat.jei;
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.content.melter.HeatSources;
 import com.oierbravo.melter.registrate.ModBlocks;
-import com.simibubi.create.AllBlocks;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -27,8 +23,12 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Recipe> {
 
@@ -131,11 +131,11 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
                 var heat = HeatSources.getHeatSourceMap().getOrDefault(hs.name(), 0);
                 if (heat > 0) {
                     ItemStack is = switch(rl.toString()) {
-                        case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-                        case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+                        //case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+                        //case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
                         case "minecraft:wall_torch" -> new ItemStack(Items.TORCH);
                         case "minecraft:soul_wall_torch" -> new ItemStack(Items.SOUL_TORCH);
-                        case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
+                        //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
                         default -> new ItemStack(block);
                     };
 

@@ -1,17 +1,16 @@
 package com.oierbravo.melter;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
 import com.oierbravo.melter.registrate.*;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -22,30 +21,24 @@ public class Melter
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final String MODID = "melter";
-    public static final String DISPLAY_NAME = "Melter";
 
-    public static IEventBus modEventBus;
-
-    public static final NonNullSupplier<Registrate> REGISTRATE = NonNullSupplier.lazy(() -> Registrate.create(MODID));
+    public static final NonNullSupplier<Registrate> REGISTRATE = NonNullSupplier.lazy(() -> Registrate.create(MODID).defaultCreativeTab(ModCreativeTabs.MAIN_TAB.getKey()));
+    //public static final NonNullSupplier<Registrate> REGISTRATE = NonNullSupplier.lazy(() -> Registrate.create(MODID).defaultCreativeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath(Melter.MODID,"mainTab"))));
 
     public static final boolean withCreate = ModList.get().isLoaded("create");
 
-
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting()
-            .disableHtmlEscaping()
-            .create();
-    public Melter()
+    public Melter(IEventBus modEventBus, ModContainer modContainer)
     {
-        modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        // Register ourselves for server and other game events we are interested in
-        MinecraftForge.EVENT_BUS.register(this);
 
         ModBlocks.register();
         ModBlockEntities.register();
         ModCreativeTabs.register(modEventBus);
         ModRecipes.register(modEventBus);
         ModMessages.register();
-        Config.register();
+
+        modEventBus.addListener(this::registerCapabilities);
+        modEventBus.addListener(ModMessages::registerNetworking);
+        Config.register(modContainer);
 
         registrate().addRawLang("itemGroup.melter:main", "Melter");
         registrate().addRawLang("melter.block.display", "Melter");
@@ -62,7 +55,10 @@ public class Melter
         registrate().addRawLang("jei.melting.recipe.minimum_heat", "Minimum heat: %d");
 
     }
-
+    private void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MELTER_BLOCK_ENTITY.get(), (be, context) -> be.getFluidHandler());
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MELTER_BLOCK_ENTITY.get(), (be, context) -> be.getItemHandler());
+    }
 
     public static Registrate registrate() {
         return REGISTRATE.get();
@@ -70,6 +66,6 @@ public class Melter
 
 
     public static ResourceLocation asResource(String path) {
-        return new ResourceLocation(MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
 }

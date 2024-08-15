@@ -7,7 +7,7 @@ import snownee.jade.api.*;
 
 @WailaPlugin
 public class MelterPlugin implements IWailaPlugin {
-    public static final ResourceLocation MELTER_DATA = new ResourceLocation("melter:melter_data");
+    public static final ResourceLocation MELTER_DATA = ResourceLocation.fromNamespaceAndPath("melter","melter_data");
 
     @Override
     public void register(IWailaCommonRegistration registration) {

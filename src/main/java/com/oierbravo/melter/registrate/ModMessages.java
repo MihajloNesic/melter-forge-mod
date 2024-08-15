@@ -1,55 +1,28 @@
 package com.oierbravo.melter.registrate;
 
 import com.oierbravo.melter.Melter;
-import com.oierbravo.melter.network.packets.FluidStackSyncS2CPacket;
-import com.oierbravo.melter.network.packets.ItemStackSyncS2CPacket;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import com.oierbravo.melter.network.packets.data.FluidSyncPayload;
+import com.oierbravo.melter.network.packets.data.ItemSyncPayload;
+import com.oierbravo.melter.network.packets.handler.FluidSyncPacket;
+import com.oierbravo.melter.network.packets.handler.ItemSyncPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class ModMessages {
-    private static SimpleChannel INSTANCE;
+    public static void registerNetworking(final RegisterPayloadHandlersEvent event) {
+        final PayloadRegistrar registrar = event.registrar(Melter.MODID);
 
-    private static int packetId = 0;
-    private static int id() {
-        return packetId++;
+        //Going to Client
+        registrar.playToClient(FluidSyncPayload.TYPE, FluidSyncPayload.STREAM_CODEC, FluidSyncPacket.get()::handle);
+        registrar.playToClient(ItemSyncPayload.TYPE, ItemSyncPayload.STREAM_CODEC, ItemSyncPacket.get()::handle);
+
+    }
+    public static void sendToAllClients(CustomPacketPayload message) {
+        PacketDistributor.sendToAllPlayers(message);
     }
 
     public static void register() {
-        SimpleChannel net = NetworkRegistry.ChannelBuilder
-                .named(new ResourceLocation(Melter.MODID, "messages"))
-                .networkProtocolVersion(() -> "1.0")
-                .clientAcceptedVersions(s -> true)
-                .serverAcceptedVersions(s -> true)
-                .simpleChannel();
-
-        INSTANCE = net;
-
-
-        net.messageBuilder(FluidStackSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(FluidStackSyncS2CPacket::new)
-                .encoder(FluidStackSyncS2CPacket::toBytes)
-                .consumerMainThread(FluidStackSyncS2CPacket::handle)
-                .add();
-        net.messageBuilder(ItemStackSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(ItemStackSyncS2CPacket::new)
-                .encoder(ItemStackSyncS2CPacket::toBytes)
-                .consumerMainThread(ItemStackSyncS2CPacket::handle)
-                .add();
-    }
-
-    public static <MSG> void sendToServer(MSG message) {
-        INSTANCE.sendToServer(message);
-    }
-
-    public static <MSG> void sendToPlayer(MSG message, ServerPlayer player) {
-        INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
-    }
-
-    public static <MSG> void sendToClients(MSG message) {
-        INSTANCE.send(PacketDistributor.ALL.noArg(), message);
     }
 }

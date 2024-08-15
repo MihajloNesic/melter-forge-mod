@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -17,8 +16,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -36,7 +35,7 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         float percent = (amount / (float) total);
         if(!fluidStack.isEmpty()){
 
-            this.renderFluidInTank(pBlockEntity.getLevel(), pBlockEntity.getBlockPos(), fluidStack, pPoseStack, pBufferSource, percent);
+            this.renderFluidInTank(pBlockEntity.getLevel(), pBlockEntity.getBlockPos(), fluidStack, pPoseStack, pBufferSource, percent, pPackedLight, pPackedOverlay);
         }
 
         ItemStack itemStack = pBlockEntity.getItemHandler().getStackInSlot(0);
@@ -53,10 +52,8 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
             this.renderBlock(pPoseStack,pBufferSource,pPackedLight,pPackedOverlay,itemStack,pBlockEntity);
             pPoseStack.popPose();
         }
-
-        //FluidRenderer.renderFluidBox(fluidStack,0.5f,0.5f,0.5f,0.5f,0.5f,0.5f,pBufferSource,pPoseStack,pPackedLight,false);
     }
-    private void renderFluidInTank(BlockAndTintGetter world, BlockPos pos, FluidStack fluidStack, PoseStack matrix, MultiBufferSource buffer, float percent) {
+    private void renderFluidInTank(BlockAndTintGetter world, BlockPos pos, FluidStack fluidStack, PoseStack matrix, MultiBufferSource buffer, float percent, int pPackedLight, int pPackedOverlay) {
         matrix.pushPose();
         matrix.translate(0.5d, 0.565d, 0.5d);
         Matrix4f matrix4f = matrix.last().pose();
@@ -71,12 +68,12 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         int color = clientFluid.getTintColor(fluidStack);
 
         VertexConsumer builder = buffer.getBuffer(RenderType.translucent());
-        this.renderTopFluidFace(fluidTexture, matrix4f, matrix3f, builder, color, percent);
+        this.renderTopFluidFace(fluidTexture, matrix4f, matrix3f, builder, color, percent, pPackedLight, pPackedOverlay);
         matrix.popPose();
 
     }
 
-    private void renderTopFluidFace(TextureAtlasSprite sprite, Matrix4f matrix4f, Matrix3f normalMatrix, VertexConsumer builder, int color, float percent) {
+    private void renderTopFluidFace(TextureAtlasSprite sprite, Matrix4f matrix4f, Matrix3f normalMatrix, VertexConsumer builder, int color, float percent, int pPackedLight, int pPackedOverlay) {
         float r = ((color >> 16) & 0xFF) / 255f;
         float g = ((color >> 8) & 0xFF) / 255f;
         float b = ((color) & 0xFF) / 255f;
@@ -85,32 +82,36 @@ public class MelterBlockRenderer implements BlockEntityRenderer<MelterBlockEntit
         float width = 10 / 16f;
         float height = 12 / 16f;
 
-        float minU = sprite.getU(4);
-        float maxU = sprite.getU(16);
-        float minV = sprite.getV(4);
-        float maxV = sprite.getV(16);
+        float minU = sprite.getU(4F / 16F);
+        float maxU = sprite.getU(16F / 16F);
+        float minV = sprite.getV(4F / 16F);
+        float maxV = sprite.getV(16F / 16F);
 
         float pY = -height / 2 + percent * height;
 
-        builder.vertex(matrix4f, -width / 2, pY , -width / 2).color(r, g, b, a)
-                .uv(minU, minV)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(normalMatrix, 0, 1, 0)
-                .endVertex();
+        builder.addVertex(matrix4f, -width / 2, pY , -width / 2).setColor(r, g, b, a)
+                .setUv(minU, minV)
+                .setLight(pPackedLight)
+                .setOverlay(pPackedOverlay)
+                .setNormal(0, 1, 0);
 
-        builder.vertex(matrix4f, -width / 2, pY, width / 2).color(r, g, b, a)
-                .uv(minU, maxV)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(normalMatrix, 0, 1, 0)
-                .endVertex();
+        builder.addVertex(matrix4f, -width / 2, pY, width / 2).setColor(r, g, b, a)
+                .setUv(minU, maxV)
+                .setLight(pPackedLight)
+                .setOverlay(pPackedOverlay)
+                .setNormal(0, 1, 0);
 
-        builder.vertex(matrix4f, width / 2, pY, width / 2).color(r, g, b, a)
-                .uv(maxU, maxV)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(normalMatrix, 0, 1, 0)
-                .endVertex();
+        builder.addVertex(matrix4f, width / 2, pY, width / 2).setColor(r, g, b, a)
+                .setUv(maxU, maxV)
+                .setLight(pPackedLight)
+                .setOverlay(pPackedOverlay)
+                .setNormal(0, 1, 0);
 
-        builder.vertex(matrix4f, width / 2, pY, -width / 2).color(r, g, b, a)
-                .uv(maxU, minV)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880).normal(normalMatrix, 0, 1, 0)
-                .endVertex();
+        builder.addVertex(matrix4f, width / 2, pY, -width / 2).setColor(r, g, b, a)
+                .setUv(maxU, minV)
+                .setLight(pPackedLight)
+                .setOverlay(pPackedOverlay)
+                .setNormal(0, 1, 0);
     }
 
     protected void renderBlock(PoseStack ms, MultiBufferSource buffer, int light, int overlay, ItemStack stack, MelterBlockEntity entity) {

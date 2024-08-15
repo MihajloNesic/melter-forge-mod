@@ -10,10 +10,10 @@
       "item": "minecraft:iron_nugget"
     },
     "S": {
-      "tag": "forge:stone"
+      "tag": "c:ingots/iron"
     }
   },
   "result": {
-    "item": "melter:melter"
+    "id": "melter:melter"
   }
 }

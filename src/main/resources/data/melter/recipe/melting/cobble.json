@@ -1,12 +1,13 @@
 {
   "type": "melter:melting",
   "input": {
-    "tag": "forge:cobblestone",
+    "tag": "c:cobblestones",
     "count": 1
   },
   "output": {
-    "fluid": "minecraft:lava",
+    "id": "minecraft:lava",
     "amount": 250
   },
-  "processingTime": 200
+  "processingTime": 200,
+  "minimumHeat": 1
 }

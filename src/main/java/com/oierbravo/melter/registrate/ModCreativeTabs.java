@@ -1,35 +1,22 @@
 package com.oierbravo.melter.registrate;
 
 import com.oierbravo.melter.Melter;
-import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModCreativeTabs {
 
     private static final DeferredRegister<CreativeModeTab> TAB_REGISTER =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Melter.MODID);
 
-    public static final RegistryObject<CreativeModeTab> MAIN_TAB = TAB_REGISTER.register("main",
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB = TAB_REGISTER.register("main",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.melter:main"))
                     .icon(ModBlocks.MELTER::asStack)
-                    .displayItems((pParameters, pOutput) -> {
-                        for (RegistryEntry<Block> entry : Melter.registrate().getAll(Registries.BLOCK)) {
-                            pOutput.accept(entry.get());
-                        }
-                        for (RegistryEntry<Item> entry : Melter.registrate().getAll(Registries.ITEM)) {
-                            pOutput.accept(entry.get());
-                        }
-                    })
                     .build());
 
     public static CreativeModeTab getBaseTab() {

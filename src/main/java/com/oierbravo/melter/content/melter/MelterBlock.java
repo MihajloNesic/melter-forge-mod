@@ -1,5 +1,6 @@
 package com.oierbravo.melter.content.melter;
 
+import com.mojang.serialization.MapCodec;
 import com.oierbravo.melter.foundation.block.ITE;
 import com.oierbravo.melter.foundation.utility.Iterate;
 import com.oierbravo.melter.registrate.ModBlockEntities;
@@ -7,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -31,12 +32,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 
@@ -45,7 +43,10 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
     public static final BooleanProperty CREATIVE = BooleanProperty.create("creative");
 
     private static final VoxelShape RENDER_SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);
-
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return null;
+    }
     @SuppressWarnings("deprecation")
     @Override
     public VoxelShape getShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
@@ -85,7 +86,6 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
             if(pEntity instanceof LivingEntity) {
                 LivingEntity entity = ((LivingEntity) pEntity);
                 if(pState.hasProperty(MelterBlock.HEAT_SOURCE) && !pState.getValue(MelterBlock.HEAT_SOURCE).equals(0) && !pState.getValue(MelterBlock.CREATIVE)) {
-                    //entity.hurt(DamageSource.HOT_FLOOR,0.1f * pState.getValue(MelterBlock.HEAT_SOURCE).getMultiplier());
                     entity.hurt(this.getTileEntity(pLevel,pPos).getLevel().damageSources().hotFloor(),0.4f* pState.getValue(MelterBlock.HEAT_SOURCE));
                 }
             }
@@ -94,10 +94,8 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
         super.stepOn(pLevel, pPos, pState, pEntity);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public @NotNull InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos,
-                                          Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
         if (!pLevel.isClientSide()) {
             BlockEntity entity = pLevel.getBlockEntity(pPos);
 
@@ -122,8 +120,8 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
                 }
                 // try and put the items in the melter (only items with valid recipe are allowed and up to 64)
                 else {
-                    LazyOptional<IItemHandler> capability = melter.getCapability(ForgeCapabilities.ITEM_HANDLER);
-                    ItemStack remainder = capability.orElse(new ItemStackHandler())
+                    IItemHandler itemHandler = melter.getItemHandler();
+                    ItemStack remainder = itemHandler
                             .insertItem(0, heldItem, false);
                     if (remainder.isEmpty()) {
                         pPlayer.setItemInHand(pHand, ItemStack.EMPTY);
@@ -139,7 +137,7 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
             }
         }
 
-        return InteractionResult.sidedSuccess(pLevel.isClientSide());
+        return ItemInteractionResult.sidedSuccess(pLevel.isClientSide());
     }
     @Override
     public RenderShape getRenderShape(BlockState pState) {
@@ -150,7 +148,6 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
     @Override
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {
         return ModBlockEntities.MELTER_BLOCK_ENTITY.create(pPos, pState);
-        //return
     }
 
 
@@ -193,14 +190,14 @@ public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntit
             return;
 
         ItemEntity itemEntity = (ItemEntity) entityIn;
-        LazyOptional<IItemHandler> capability = melter.getCapability(ForgeCapabilities.ITEM_HANDLER);
-        if (!capability.isPresent())
-            return;
+        Lazy<IItemHandler> itemHandler = melter.getItemHandlerCapability();
 
-        ItemStack remainder = capability.orElse(new ItemStackHandler())
-                .insertItem(0, itemEntity.getItem(), false);
+        ItemStack remainder = itemHandler
+                .get().insertItem(0, itemEntity.getItem(), false);
         if (remainder.isEmpty())
             itemEntity.discard();
+        int count = remainder.getCount();
+        int iCount = itemEntity.getItem().getCount();
         if (remainder.getCount() < itemEntity.getItem()
                 .getCount())
             itemEntity.setItem(remainder);
