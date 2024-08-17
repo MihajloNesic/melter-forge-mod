@@ -23,7 +23,6 @@ public class Melter
     public static final String MODID = "melter";
 
     public static final NonNullSupplier<Registrate> REGISTRATE = NonNullSupplier.lazy(() -> Registrate.create(MODID).defaultCreativeTab(ModCreativeTabs.MAIN_TAB.getKey()));
-    //public static final NonNullSupplier<Registrate> REGISTRATE = NonNullSupplier.lazy(() -> Registrate.create(MODID).defaultCreativeTab(ResourceKey.create(Registries.CREATIVE_MODE_TAB, ResourceLocation.fromNamespaceAndPath(Melter.MODID,"mainTab"))));
 
     public static final boolean withCreate = ModList.get().isLoaded("create");
 

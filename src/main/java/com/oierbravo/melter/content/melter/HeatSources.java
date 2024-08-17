@@ -2,10 +2,15 @@ package com.oierbravo.melter.content.melter;
 
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.registrate.ModBlocks;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -54,7 +59,7 @@ public class HeatSources {
         if (Melter.withCreate) {
             // blaze burner
 
-          /*  if (state.hasProperty(BlazeBurnerBlock.HEAT_LEVEL)) {
+            /*if (state.hasProperty(BlazeBurnerBlock.HEAT_LEVEL)) {
                 BlazeBurnerBlock.HeatLevel heatLevel = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
                 // can't have a second colon here, see ResourceLocation#assertValidNamespace
                 blockName += "/" + heatLevel.getSerializedName();
@@ -121,8 +126,7 @@ public class HeatSources {
         Arrays.stream(Type.values()).forEach(type -> stackMap.put(type, new ArrayList<>()));
 
         if (heatLevel > 20) {
-            stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER)));
-            //stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER).setHoverName(Component.translatable("melter.tooltip.no_source_found"))));
+            stackMap.put(Type.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
             return stackMap;
         }
 
@@ -141,12 +145,11 @@ public class HeatSources {
             })
             .forEach(e -> {
                 var rl = e.rl();
-
                 if (e.type.equals(Type.BLOCK)) {
                     // Fire and Soul Fire don't really have a "Block" we can use to texture
                     ItemStack is = switch(rl.toString()) {
-                        //case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-                        //case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+                        case "minecraft:fire" -> generateItemStackWithCustomItemName(new ItemStack(Items.FLINT_AND_STEEL),Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+                        case "minecraft:soul_fire" -> generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
                         //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
                         default -> new ItemStack(BuiltInRegistries.ITEM.get(rl));
                     };
@@ -156,11 +159,8 @@ public class HeatSources {
 
                     if (!isItemStackPresent && !is.getItem().equals(new ItemStack(Blocks.AIR).getItem())) {
                         if (!e.description.isEmpty()) {
-//                            stackMap.get(Type.BLOCK)
-  //                                          is.getItem().appendHoverText(is, Item.TooltipContext.EMPTY,)
-    //                                                .appendHoverText(is,Component.literal(" (" + e.description + ")"))
-      //                              );
-                                //is.getHoverName().copy().append();
+                            stackMap.get(Type.BLOCK).add(generateItemStackWithCustomItemName(is,
+                                    is.getHoverName().copy().append(Component.literal(" (" + e.description + ")"))));
                         }
                         else {
                             stackMap.get(Type.BLOCK).add(is);
@@ -186,13 +186,16 @@ public class HeatSources {
             .orElse(true);
 
         if (isMapEmpty) {
-            //stackMap.put(Type.BLOCK, List.of(new ItemStack(Blocks.BARRIER).setHoverName(Component.translatable("melter.tooltip.no_source_found"))));
+            stackMap.put(Type.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
             return getHeatSourcesForHeatLevel(heatLevel + 1);
         }
 
         return stackMap;
     }
-
+    public static ItemStack generateItemStackWithCustomItemName(ItemStack itemStack, MutableComponent component){
+        itemStack.set(DataComponents.ITEM_NAME,component);
+        return itemStack;
+    }
     @Override
     public String toString() {
         return super.toString();
