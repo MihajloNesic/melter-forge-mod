@@ -1,5 +1,6 @@
 package com.oierbravo.melter.content.melter;
 
+import com.oierbravo.melter.content.melter.heatsource.HeatSources;
 import com.oierbravo.melter.network.packets.data.FluidSyncPayload;
 import com.oierbravo.melter.network.packets.data.ItemSyncPayload;
 import com.oierbravo.melter.registrate.ModMessages;
@@ -204,7 +205,7 @@ public class MelterBlockEntity extends BlockEntity  {
         BlockState below = this.getLevel().getBlockState(pos.below());
 
         BlockState newState = this.getBlockState()
-            .setValue(MelterBlock.HEAT_SOURCE, HeatSources.getHeatSource(below))
+            .setValue(MelterBlock.HEAT_SOURCE, HeatSources.getHeatSource(this.getLevel(), below))
             .setValue(MelterBlock.CREATIVE, HeatSources.isCreative(getLevel(), pos.below()));
         if(!pLastState.equals(newState)){
             this.getLevel().setBlock(pos,newState,Block.UPDATE_ALL);
@@ -273,13 +274,13 @@ public class MelterBlockEntity extends BlockEntity  {
     protected static boolean hasHeatSourceBelow(MelterBlockEntity pBlockEntity){
         BlockPos pos = pBlockEntity.getBlockPos();
         BlockState below = Objects.requireNonNull(pBlockEntity.getLevel()).getBlockState(pos.below());
-        return HeatSources.isHeatSource(below);
+        return HeatSources.isHeatSource(pBlockEntity.getLevel(), below);
     }
 
     protected static boolean hasMinimumHeatSource(int minimum, MelterBlockEntity melter) {
         BlockPos pos = melter.getBlockPos();
         BlockState below = melter.getLevel().getBlockState(pos.below());
-        int sourceHeatLevel = HeatSources.getHeatSource(below);
+        int sourceHeatLevel = HeatSources.getHeatSource(melter.getLevel(), below);
         return minimum <= sourceHeatLevel;
     }
 

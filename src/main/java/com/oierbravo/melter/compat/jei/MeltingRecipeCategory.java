@@ -4,7 +4,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.oierbravo.melter.Melter;
-import com.oierbravo.melter.content.melter.HeatSources;
+import com.oierbravo.melter.content.melter.heatsource.HeatSource;
+import com.oierbravo.melter.content.melter.heatsource.HeatSources;
 import com.oierbravo.melter.content.melter.MeltingRecipe;
 import com.oierbravo.melter.registrate.ModBlocks;
 import mezz.jei.api.constants.ModIds;
@@ -122,11 +123,11 @@ public class MeltingRecipeCategory implements IRecipeCategory<MeltingRecipe> {
                 .addIngredients(NeoForgeTypes.FLUID_STACK, fluidList)
                 .setBackground(slotDrawable, -1, -1);
         
-        Map<HeatSources.Type, List> heatSourceStacks = HeatSources.getHeatSourcesForHeatLevel(recipe.getHeatLevel());
+        Map<HeatSource.SourceType, List> heatSourceStacks = HeatSources.getHeatSourcesForHeatLevel(recipe.getHeatLevel());
         builder.addSlot(RecipeIngredientRole.RENDER_ONLY,getWidth()/2 - slotDrawable.getWidth()/2,38)
                 .addTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(1, Component.translatable("jei.melting.recipe.minimum_heat", recipe.getHeatLevel()).withStyle(ChatFormatting.GOLD)))
-                .addIngredients(NeoForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSources.Type.FLUID))
-                .addItemStacks((List<ItemStack>) heatSourceStacks.get(HeatSources.Type.BLOCK))
+                .addIngredients(NeoForgeTypes.FLUID_STACK, (List<FluidStack>) heatSourceStacks.get(HeatSource.SourceType.FLUID))
+                .addItemStacks((List<ItemStack>) heatSourceStacks.get(HeatSource.SourceType.BLOCK))
                 .setBackground(slotDrawable, -1, -1);
     }
 

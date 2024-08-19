@@ -1,6 +1,7 @@
 package com.oierbravo.melter.content.melter;
 
 import com.mojang.serialization.MapCodec;
+import com.oierbravo.melter.content.melter.heatsource.HeatSources;
 import com.oierbravo.melter.foundation.block.ITE;
 import com.oierbravo.melter.foundation.utility.Iterate;
 import com.oierbravo.melter.registrate.ModBlockEntities;
@@ -39,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 
 public class MelterBlock extends BaseEntityBlock implements ITE<MelterBlockEntity> {
-    public static final IntegerProperty HEAT_SOURCE = IntegerProperty.create("heatsource", 0, 10);
+    public static final IntegerProperty HEAT_SOURCE = IntegerProperty.create("heatsource", 0, HeatSources.MAX_LEVEL);
     public static final BooleanProperty CREATIVE = BooleanProperty.create("creative");
 
     private static final VoxelShape RENDER_SHAPE = Shapes.box(0.1, 0.1, 0.1, 0.9, 0.9, 0.9);

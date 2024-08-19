@@ -1,4 +1,4 @@
-package com.oierbravo.melter.content.melter;
+package com.oierbravo.melter.content.melter.heatsource;
 
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.registrate.ModBlocks;
@@ -22,23 +22,71 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.*;
 
 public class HeatSources {
-
-    public static int fromLevel(Level level, BlockPos below) {
-        BlockState belowBlockState = level.getBlockState(below);
-        return HeatSources.getHeatSource(belowBlockState);
+    public static int MAX_LEVEL = 20;
+    public static int fromLevel(Level pLevel, BlockPos below) {
+        BlockState belowBlockState = pLevel.getBlockState(below);
+        return HeatSources.getHeatSource(pLevel, belowBlockState);
     }
 
-    public static boolean isCreative(Level level, BlockPos below) {
-        Block belowBlock = level.getBlockState(below).getBlock();
+    public static boolean isCreative(Level pLevel, BlockPos below) {
+        Block belowBlock = pLevel.getBlockState(below).getBlock();
         return belowBlock.equals(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get());
     }
 
-    public static boolean isHeatSource(BlockState blockState) {
-        int heatLevel = getHeatSource(blockState);
+    public static boolean isHeatSource(Level pLevel, BlockState blockState) {
+        int heatLevel = getHeatSource(pLevel, blockState);
         return heatLevel > 0;
     }
+    public static int getHeatSource(Level pLevel, BlockState state){
+        if(HeatSourcesConfig.HEAT_SOURCES_FROM_CONFIG.get())
+            return getHeatSourceFromConfig(state);
+        return getHeatSourceFromDatapack(pLevel, state);
+    }
+    public static int getHeatSourceFromDatapack(Level pLevel, BlockState state) {
+        Optional<HeatSource> heatSource = HeatSourcesRegistry.fromBlock(pLevel, state.getBlock());
 
-    public static int getHeatSource(BlockState state) {
+        if(heatSource.isEmpty())
+            return 0;
+
+        // campfire state
+        if (state.hasProperty(CampfireBlock.LIT)) {
+            boolean isLit = state.getValue(CampfireBlock.LIT);
+            if (!isLit) {
+                return 0;
+            }
+        }
+
+        if(heatSource.get().getSourceType() == HeatSource.SourceType.BLOCK)
+            return heatSource.get().getHeatLevel();
+
+        // create
+        if (Melter.withCreate) {
+            // blaze burner
+
+            /*if (state.hasProperty(BlazeBurnerBlock.HEAT_LEVEL)) {
+                BlazeBurnerBlock.HeatLevel heatLevel = state.getValue(BlazeBurnerBlock.HEAT_LEVEL);
+                // can't have a second colon here, see ResourceLocation#assertValidNamespace
+                blockName += "/" + heatLevel.getSerializedName();
+            }*/
+        }
+
+        // fluid
+        int liquidLevel = 0;
+        if (state.getBlock() instanceof LiquidBlock) {
+
+            if (!state.getFluidState().isSource()) {
+                liquidLevel = state.getValue(LiquidBlock.LEVEL);
+            }
+        }
+        float liquidLevelDecay = liquidLevel <= 0 ? 1 : liquidLevel + 1.2f; // 1.2 is some small delta for the 'decay'
+
+        int heatLevel = heatSource.get().heatLevel;
+        // subtract fluid level decay; if liquidLevel is 0, heatLevel is returned
+        heatLevel = (int)((float)heatLevel / liquidLevelDecay);
+
+        return heatLevel;
+    }
+    public static int getHeatSourceFromConfig(BlockState state) {
         // creative
         if (state.getBlock().equals(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get())) {
             return 10;
@@ -78,20 +126,19 @@ public class HeatSources {
         }
         float liquidLevelDecay = liquidLevel <= 0 ? 1 : liquidLevel + 1.2f; // 1.2 is some small delta for the 'decay'
 
-        int heatLevel = getHeatSourceMap().getOrDefault(blockName, 0);
+        int heatLevel = getConfigHeatSourceMap().getOrDefault(blockName, 0);
 
         // subtract fluid level decay; if liquidLevel is 0, heatLevel is returned
         heatLevel = (int)((float)heatLevel / liquidLevelDecay);
 
         return heatLevel;
     }
-
     public static List<Config> getHeatSourcesConfig() {
-        return MelterConfig.HEAT_SOURCES.get()
+        return HeatSourcesConfig.HEAT_SOURCES.get()
             .stream()
             .map(s -> {
                 try {
-                    return new Config(Type.valueOf(s.get(0).toUpperCase()), s.get(1), Integer.valueOf(s.get(2)), s.get(3));
+                    return new Config(HeatSource.SourceType.valueOf(s.get(0).toUpperCase()), s.get(1), Integer.valueOf(s.get(2)), s.get(3));
                 }
                 catch (Exception e) {
                     Melter.LOGGER.error("Failed to load heat source: {}", s);
@@ -102,9 +149,10 @@ public class HeatSources {
             .toList();
     }
 
-    public static Map<String, Integer> getHeatSourceMap() {
+    public static Map<String, Integer> getConfigHeatSourceMap() {
         Map<String, Integer> map = new HashMap<>();
-        MelterConfig.HEAT_SOURCES.get()
+        List<? extends List<? extends String>> sources = HeatSourcesConfig.HEAT_SOURCES.get();
+        HeatSourcesConfig.HEAT_SOURCES.get()
             .forEach(s -> {
                 if (!map.containsKey(s.get(1))) {
                     map.put(s.get(1), Integer.valueOf(s.get(2)));
@@ -121,18 +169,18 @@ public class HeatSources {
      *
      * If no valid heat source is present, we are adding a Barrier block with a custom text.
      */
-    public static Map<Type, List> getHeatSourcesForHeatLevel(int heatLevel) {
-        Map<Type, List> stackMap = new HashMap<>(); // I know...
-        Arrays.stream(Type.values()).forEach(type -> stackMap.put(type, new ArrayList<>()));
+    public static Map<HeatSource.SourceType, List> getHeatSourcesForHeatLevel(int heatLevel) {
+        Map<HeatSource.SourceType, List> stackMap = new HashMap<>(); // I know...
+        Arrays.stream(HeatSource.SourceType.values()).forEach(type -> stackMap.put(type, new ArrayList<>()));
 
         if (heatLevel > 20) {
-            stackMap.put(Type.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
+            stackMap.put(HeatSource.SourceType.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
             return stackMap;
         }
 
-        MelterConfig.HEAT_SOURCES.get().stream()
+        HeatSourcesConfig.HEAT_SOURCES.get().stream()
             .filter(s -> Integer.valueOf(s.get(2)).equals(heatLevel))
-            .map(e -> new Config(Type.valueOf(e.get(0).toUpperCase()), e.get(1), Integer.valueOf(e.get(2)), e.get(3)))
+            .map(e -> new Config(HeatSource.SourceType.valueOf(e.get(0).toUpperCase()), e.get(1), Integer.valueOf(e.get(2)), e.get(3)))
             .filter(e -> {
                 try {
                     e.rl();
@@ -145,7 +193,7 @@ public class HeatSources {
             })
             .forEach(e -> {
                 var rl = e.rl();
-                if (e.type.equals(Type.BLOCK)) {
+                if (e.type.equals(HeatSource.SourceType.BLOCK)) {
                     // Fire and Soul Fire don't really have a "Block" we can use to texture
                     ItemStack is = switch(rl.toString()) {
                         case "minecraft:fire" -> generateItemStackWithCustomItemName(new ItemStack(Items.FLINT_AND_STEEL),Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
@@ -154,28 +202,28 @@ public class HeatSources {
                         default -> new ItemStack(BuiltInRegistries.ITEM.get(rl));
                     };
 
-                    boolean isItemStackPresent = stackMap.get(Type.BLOCK).stream()
+                    boolean isItemStackPresent = stackMap.get(HeatSource.SourceType.BLOCK).stream()
                         .anyMatch(stack -> ((ItemStack) stack).is(is.getItem()));
 
                     if (!isItemStackPresent && !is.getItem().equals(new ItemStack(Blocks.AIR).getItem())) {
                         if (!e.description.isEmpty()) {
-                            stackMap.get(Type.BLOCK).add(generateItemStackWithCustomItemName(is,
+                            stackMap.get(HeatSource.SourceType.BLOCK).add(generateItemStackWithCustomItemName(is,
                                     is.getHoverName().copy().append(Component.literal(" (" + e.description + ")"))));
                         }
                         else {
-                            stackMap.get(Type.BLOCK).add(is);
+                            stackMap.get(HeatSource.SourceType.BLOCK).add(is);
                         }
                     }
                 }
 
-                if (e.type.equals(Type.FLUID)) {
+                if (e.type.equals(HeatSource.SourceType.FLUID)) {
                     FluidStack fs = new FluidStack(BuiltInRegistries.FLUID.get(rl), 1000);
 
-                    boolean isFluidStackPresent = stackMap.get(Type.FLUID).stream()
+                    boolean isFluidStackPresent = stackMap.get(HeatSource.SourceType.FLUID).stream()
                         .anyMatch(stack -> ((FluidStack) stack).is(fs.getFluidType()));
 
                     if (!isFluidStackPresent) {
-                        stackMap.get(Type.FLUID).add(fs);
+                        stackMap.get(HeatSource.SourceType.FLUID).add(fs);
                     }
                 }
             });
@@ -186,7 +234,7 @@ public class HeatSources {
             .orElse(true);
 
         if (isMapEmpty) {
-            stackMap.put(Type.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
+            stackMap.put(HeatSource.SourceType.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
             return getHeatSourcesForHeatLevel(heatLevel + 1);
         }
 
@@ -201,14 +249,10 @@ public class HeatSources {
         return super.toString();
     }
 
-    public record Config(Type type, String name, Integer level, String description) {
+    public record Config(HeatSource.SourceType type, String name, Integer level, String description) {
         public ResourceLocation rl() {
             // we split by '/' and get the first part, because we don't want the state
             return ResourceLocation.parse(name.split("/")[0]);
         }
-    }
-
-    public enum Type {
-        BLOCK, FLUID
     }
 }

@@ -1,7 +1,10 @@
 package com.oierbravo.melter.compat.jei;
 
 import com.oierbravo.melter.Melter;
-import com.oierbravo.melter.content.melter.HeatSources;
+import com.oierbravo.melter.content.melter.heatsource.HeatSource;
+import com.oierbravo.melter.content.melter.heatsource.HeatSources;
+import com.oierbravo.melter.content.melter.heatsource.HeatSourcesConfig;
+import com.oierbravo.melter.content.melter.heatsource.HeatSourcesRegistry;
 import com.oierbravo.melter.registrate.ModBlocks;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -17,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -29,6 +33,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Recipe> {
 
@@ -104,14 +109,36 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
         }
         else guiGraphics.drawString(minecraft.font, Component.translatable("melter.tooltip.heat_level").append(Component.literal(" " + recipe.heat)), 30, 9, 0xFF808080, false);
     }
-
     public static List<Recipe> getRecipes() {
+        if(HeatSourcesConfig.HEAT_SOURCES_FROM_CONFIG.get())
+            return getRecipesFromConfig();
+        return getRecipesFromDatapacks();
+    }
+    public static List<Recipe> getRecipesFromDatapacks() {
+        List<Recipe> recipes = new ArrayList<>();
+
+
+        for (Map.Entry<ResourceKey<HeatSource>, HeatSource> entry : Minecraft.getInstance().level.registryAccess().registry(HeatSourcesRegistry.HEAT_SOURCE_REGISTRY_KEY).get().entrySet()) {
+            HeatSource heatSource = (HeatSource) entry.getValue();
+            if(heatSource.getSourceType() == HeatSource.SourceType.BLOCK){
+                recipes.add(new Recipe(new ItemStack(heatSource.getSource()), null, heatSource.getHeatLevel(), "TEST DESC"));
+            }
+            //if(heatSource.getSourceType() == HeatSource.SourceType.FLUID){
+            //    recipes.add(new Recipe(FluidStack.(heatSource.getSource()), null, heatSource.getHeatLevel(), "TEST DESC"));
+            //}
+
+        }
+        recipes.sort(Comparator.comparingInt(Recipe::heat));
+        return recipes;
+    }
+
+    public static List<Recipe> getRecipesFromConfig() {
         List<Recipe> recipes = new ArrayList<>();
 
         for (HeatSources.Config hs : HeatSources.getHeatSourcesConfig()) {
             Melter.LOGGER.info("processing heat source: " + hs.name());
             var rl = hs.rl();
-            if (hs.type().equals(HeatSources.Type.BLOCK)) {
+            if (hs.type().equals(HeatSource.SourceType.BLOCK)) {
                 var item = BuiltInRegistries.ITEM.get(rl);
                 Block block = null;
 
@@ -128,13 +155,16 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
                     continue;
                 }
 
-                var heat = HeatSources.getHeatSourceMap().getOrDefault(hs.name(), 0);
+                var heat = HeatSources.getConfigHeatSourceMap().getOrDefault(hs.name(), 0);
                 if (heat > 0) {
                     ItemStack is = switch(rl.toString()) {
                         //case "minecraft:fire" -> new ItemStack(Items.FLINT_AND_STEEL).setHoverName(Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
                         //case "minecraft:soul_fire" -> new ItemStack(Items.FIRE_CHARGE).setHoverName(Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
                         case "minecraft:wall_torch" -> new ItemStack(Items.TORCH);
-                        case "minecraft:soul_wall_torch" -> new ItemStack(Items.SOUL_TORCH);
+                        case "minecraft:soul_wall_torch" -> {
+                            ItemStack itemStack = new ItemStack(Items.SOUL_TORCH);
+                            yield itemStack;
+                        }
                         //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
                         default -> new ItemStack(block);
                     };
@@ -153,14 +183,14 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
                     }
                 }
             }
-            else if (hs.type().equals(HeatSources.Type.FLUID)) {
+            else if (hs.type().equals(HeatSource.SourceType.FLUID)) {
                 var fluid = BuiltInRegistries.FLUID.get(rl);
 
                 if (fluid.equals(Fluids.EMPTY)) {
                     continue;
                 }
 
-                var heat = HeatSources.getHeatSourceMap().getOrDefault(hs.name(), 0);
+                var heat = HeatSources.getConfigHeatSourceMap().getOrDefault(hs.name(), 0);
                 if (heat > 0) {
                     FluidStack fs = new FluidStack(fluid, 1000);
 

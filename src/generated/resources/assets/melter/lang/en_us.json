@@ -1,17 +1,17 @@
 {
+  "block.melter.creative_heat_source": "Creative Heat Source",
   "block.melter.melter": "Melter",
-  "block.melter.creative_heat_source": "§5Creative Heat Source",
-  "creative_heat_source.tooltip": "Infinite heat level for the Melter",
-  "creative_heat_source.info": "Transforms any Melter into a 'Creative Melter' by placing this block under it. Creative Melter has an infinite heat level and will instantly melt anything. Also it won't hurt when you or any mob standing on it.",
   "config.jade.plugin_melter.melter_data": "Melter data",
+  "creative_heat_source.info": "Transforms any Melter into a 'Creative Melter' by placing this block under it. Creative Melter has an infinite heat level and will instantly melt anything. Also it won't hurt when you or any mob standing on it.",
+  "creative_heat_source.tooltip": "Infinite heat level for the Melter",
+  "heatsource.recipe": "Melter Heat Sources",
   "itemGroup.melter:main": "Melter",
+  "jei.melting.recipe.minimum_heat": "Minimum heat: %d",
   "melter.block.display": "Melter",
-  "melter.tooltip.no_source_found": "No valid heat source found",
-  "melter.tooltip.heat_level.none": "§cNot heated",
   "melter.tooltip.heat_level": "Heat:",
   "melter.tooltip.heat_level.creative": "§5infinite",
+  "melter.tooltip.heat_level.none": "§cNot heated",
+  "melter.tooltip.no_source_found": "No valid heat source found",
   "melter.tooltip.progress": "Progress: %d%%",
-  "melting.recipe": "Melting",
-  "heatsource.recipe": "Melter Heat Sources",
-  "jei.melting.recipe.minimum_heat": "Minimum heat: %d"
+  "melting.recipe": "Melting"
 }

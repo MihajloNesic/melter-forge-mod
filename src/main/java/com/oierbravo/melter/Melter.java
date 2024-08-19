@@ -1,6 +1,8 @@
 package com.oierbravo.melter;
 
 import com.mojang.logging.LogUtils;
+import com.oierbravo.melter.registrate.ModHeatSources;
+import com.oierbravo.melter.content.melter.heatsource.HeatSourcesRegistry;
 import com.oierbravo.melter.registrate.*;
 import com.tterrag.registrate.Registrate;
 import com.tterrag.registrate.util.nullness.NonNullSupplier;
@@ -37,7 +39,11 @@ public class Melter
 
         modEventBus.addListener(this::registerCapabilities);
         modEventBus.addListener(ModMessages::registerNetworking);
-        Config.register(modContainer);
+
+        modEventBus.addListener(HeatSourcesRegistry::registerDatapackRegistries);
+        modEventBus.addListener(ModHeatSources::onGatherData);
+
+        ModConfig.register(modContainer);
 
         registrate().addRawLang("itemGroup.melter:main", "Melter");
         registrate().addRawLang("melter.block.display", "Melter");

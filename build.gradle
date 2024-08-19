@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.5-beta'
+    id "me.shedaniel.unified-publishing" version "0.1.+"
 
 }
 
@@ -164,9 +165,9 @@ dependencies {
 
     implementation "curse.maven:jade-324717:${jade_id}"
 
-    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    compileOnly "mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${jei_minecraft_version}-neoforge-api:${jei_version}"
+    localRuntime "mezz.jei:jei-${jei_minecraft_version}-neoforge:${jei_version}"
 
     implementation("dev.latvian.mods:rhino:$rhino_version") { transitive(false) }
     implementation("dev.latvian.mods:kubejs-neoforge:$kubejs_version")
@@ -245,94 +246,10 @@ tasks.withType(ProcessResources).configureEach {
         expand replaceProperties + [project: project]
     }
 }
-java {
-    withSourcesJar()
-}
-
-repositories {
-    maven {
-        // location of the maven for Registrate and Flywheel
-        name = 'tterrag maven'
-        url = 'https://maven.tterrag.com'
-    }
-    maven {
-        // location of the maven that hosts JEI files since January 2023
-        // location of the maven for Vazkii's mods
-        name = "Jared's maven"
-        url = "https://maven.blamejared.com/"
-    }
-    maven {
-        // location of the maven for Curios API
-        url = "https://maven.theillusivec4.top/"
-    }
-    maven {
-        // location of maven for CC: Tweaked
-        name = "squiddev"
-        url = "https://squiddev.cc/maven/"
-    }
-
-    maven {
-        url = 'https://www.cursemaven.com'
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-        content {
-            includeGroup "maven.modrinth"
-        }
-    }
-    maven {
-        url "https://jitpack.io"
-        content {
-            includeGroup "com.github.llamalad7.mixinextras"
-        }
-    }
-
-    maven {
-        url "https://maven.saps.dev/minecraft"
-        content {
-            includeGroup "dev.latvian.mods"
-            includeGroup "dev.ftb.mods"
-        }
-    }
-    maven {
-        url "https://maven.architectury.dev/"
-        content {
-            includeGroup "dev.architectury"
-        }
-    }
-    mavenLocal()
-    flatDir {
-        dirs 'libs'
-    }
-}
 
 compileJava.options.encoding = 'UTF-8'
 compileJava {
     options.compilerArgs = ['-Xdiags:verbose']
-}
-tasks.withType(Jar) {
-    archiveClassifier = 'slim'
-    manifest {
-        attributes([
-                "Specification-Title"     : modid,
-                "Specification-Vendor"    : author,
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.version,
-                "Implementation-Vendor"   : author,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-
-    if(file("./src/main/resources/${modid}.mixins.json").exists()) {
-        manifest {
-            attributes 'MixinConfigs': "${modid}.mixins.json"
-        }
-    }
 }
 
 void addLicense(jarTask) {
@@ -354,16 +271,16 @@ compileJava {
     options.compilerArgs = ['-Xdiags:verbose']
 }
 
-/*
+
 unifiedPublishing {
     project {
         displayName = "${archivesBaseName}-${project.version}"
         changelog = rootProject.file("changes/${minecraft_version}-${mod_version}.md").text // Optional, in markdown format
         releaseType = "release" // Optional, use "release", "beta" or "alpha"
         gameVersions = ["${minecraft_version}"]
-        gameLoaders = ["forge"]
+        gameLoaders = ["neoforge"]
 
-        mainPublication tasks.jarJar // Declares the publicated jar
+        mainPublication tasks.jar // Declares the publicated jar
 
         var cfToken = System.getenv("CF_TOKEN")
         if(cfToken != null) {
@@ -387,7 +304,6 @@ unifiedPublishing {
             modrinth {
                 token = mrToken
 
-                //id = "r018adCw"// Required, must be a string, ID of Modrinth project
                 id = "${modrinth_id}"// Required, must be a string, ID of Modrinth project
                 relations {
                     optional "create"
@@ -400,7 +316,6 @@ unifiedPublishing {
         }
     }
 }
-*/
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
 idea {
     module {

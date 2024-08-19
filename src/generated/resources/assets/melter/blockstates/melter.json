@@ -1,40 +1,130 @@
 {
   "variants": {
-    "creative=true": {
-      "model": "melter:block/melter_creative"
+    "creative=false,heatsource=0": {
+      "model": "melter:block/melter"
     },
-    "heatsource=0,creative=false": {
-      "model": "melter:block/melter_no_heat"
-    },
-    "heatsource=1,creative=false": {
+    "creative=false,heatsource=1": {
       "model": "melter:block/melter_heat1"
     },
-    "heatsource=2,creative=false": {
+    "creative=false,heatsource=10": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=11": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=12": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=13": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=14": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=15": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=16": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=17": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=18": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=19": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=2": {
       "model": "melter:block/melter_heat2"
     },
-    "heatsource=3,creative=false": {
+    "creative=false,heatsource=20": {
+      "model": "melter:block/melter_really_hot"
+    },
+    "creative=false,heatsource=3": {
       "model": "melter:block/melter_heat3"
     },
-    "heatsource=4,creative=false": {
+    "creative=false,heatsource=4": {
       "model": "melter:block/melter_heat4"
     },
-    "heatsource=5,creative=false": {
-      "model": "melter:block/melter_really_hot"
+    "creative=false,heatsource=5": {
+      "model": "melter:block/melter_heat4"
     },
-    "heatsource=6,creative=false": {
-      "model": "melter:block/melter_really_hot"
+    "creative=false,heatsource=6": {
+      "model": "melter:block/melter_heat4"
     },
-    "heatsource=7,creative=false": {
-      "model": "melter:block/melter_really_hot"
+    "creative=false,heatsource=7": {
+      "model": "melter:block/melter_heat4"
     },
-    "heatsource=8,creative=false": {
-      "model": "melter:block/melter_really_hot"
+    "creative=false,heatsource=8": {
+      "model": "melter:block/melter_heat4"
     },
-    "heatsource=9,creative=false": {
-      "model": "melter:block/melter_really_hot"
+    "creative=false,heatsource=9": {
+      "model": "melter:block/melter_heat4"
     },
-    "heatsource=10,creative=false": {
-      "model": "melter:block/melter_really_hot"
+    "creative=true,heatsource=0": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=1": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=10": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=11": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=12": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=13": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=14": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=15": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=16": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=17": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=18": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=19": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=2": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=20": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=3": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=4": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=5": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=6": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=7": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=8": {
+      "model": "melter:block/melter_creative"
+    },
+    "creative=true,heatsource=9": {
+      "model": "melter:block/melter_creative"
     }
   }
 }
