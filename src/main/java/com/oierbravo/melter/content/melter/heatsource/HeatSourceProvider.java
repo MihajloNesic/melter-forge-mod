@@ -14,9 +14,6 @@ public class HeatSourceProvider extends DatapackBuiltinEntriesProvider {
     private static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(HeatSourcesRegistry.HEAT_SOURCE_REGISTRY_KEY, ModHeatSources::bootstrap);
 
-    //public GeneratedEntriesProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-    //    super(output, registries, BUILDER, Set.of(Create.ID));
-    //}
     public HeatSourceProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, RegistrySetBuilder datapackEntriesBuilder, Set<String> modIds) {
         super(output, registries, datapackEntriesBuilder, Set.of(Melter.MODID));
     }
