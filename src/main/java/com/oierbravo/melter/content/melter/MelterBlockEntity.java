@@ -114,22 +114,11 @@ public class MelterBlockEntity extends BlockEntity  {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains("input")) {
-            inputItems.deserializeNBT(registries, tag.getCompound("input"));
-        }
-        if (tag.contains("output")) {
-            fluidTankHandler.readFromNBT(registries, tag);
-            fluidTankHandler.setCapacity(tag.getInt("output"));
-        }
-
-        if (tag.contains("melter.progress")) {
-            progress = tag.getInt("melter.progress");
-        }
-        if (tag.contains("melter.maxProgress")) {
-            maxProgress = tag.getInt("melter.maxProgress");
-        }
-
-
+        inputItems.deserializeNBT(registries, tag.getCompound("input"));
+        fluidTankHandler.readFromNBT(registries, tag);
+        fluidTankHandler.setCapacity(tag.getInt("output"));
+        progress = tag.getInt("melter.progress");
+        maxProgress = tag.getInt("melter.maxProgress");
     }
 
     public void drops() {
