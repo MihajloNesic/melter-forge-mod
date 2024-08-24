@@ -4,7 +4,7 @@ A simple melter block that turn blocks into liquid.
 
 Intended for modpacks. Use as you see fit.
 
-Not providing any recipe at the moment.
+Only providing basic recipes.
 
 Designed to work with create but it's optional.
 
@@ -13,34 +13,68 @@ Huge thanks to [MihajloNesic](https://github.com/MihajloNesic) for the big contr
 
 ## Heat sources.
 - See JEI
+- Customizable via datapack or config
+- `sourceType` can be `BLOCK`, `FLUID` or `CREATIVE`
+- `heatLevel` from `1` to `20` (optional, defaults to 1)
+- Fluid sources decay its heat level when flowing.
 
-### Heat source config
+
+## Heat sources datapack (only for mc1.21.x)
+### Block source
+```
+{
+  "heatLevel": 2,
+  "source": "minecraft:fire",
+  "sourceType": "BLOCK"
+}
+```
+### Fluid source
+```
+{
+  "heatLevel": 5,
+  "source": "minecraft:lava",
+  "sourceType": "FLUID"
+}
+```
+### Creative source (instant melting)
+```
+{
+  "heatLevel": 0,
+  "source": "minecraft:lava",
+  "sourceType": "CREATIVE"
+}
+```
+## Heat sources from config (only for 1.20.1 and 1.21.x)
+- Must set `fromConfig` config to `true`
 ```
 #Settings for the melter
 [melter]
-#How much liquid fits into the melter, in mB
-#Range: > 1
-capacity = 1000
-#How much liquid generates per tick, in mB
-#Range: > 1
-liquidPerTick = 2
-#List of heat source blocks or fluids. Each element in a list must follow the order: type (block, fluid), name, heat level (1-10), additional information shown in JEI
-heatSources = [
-	["block", "minecraft:torch", "1", ""],
-	["block", "minecraft:soul_torch", "1", ""],
-	["block", "minecraft:wall_torch", "1", ""],
-	["block", "minecraft:soul_wall_torch", "1", ""],
-	["block", "minecraft:fire", "2", ""],
-	["block", "minecraft:soul_fire", "2", ""],
-	["block", "minecraft:campfire", "2", ""],
-	["block", "minecraft:soul_campfire", "2", ""],
-	["block", "minecraft:magma_block", "3", ""],
-	["fluid", "minecraft:lava", "4", ""],
-	["block", "create:lit_blaze_burner", "2", "Lit"],
-	["block", "create:blaze_burner/fading", "3", "Heated"],
-	["block", "create:blaze_burner/kindled", "3", "Heated"],
-	["block", "create:blaze_burner/seething", "5", "Super-Heated"]
-]
+	#How much liquid fits into the melter, in mB
+	#Range: > 1
+	capacity = 1000
+
+#Settings for heat sources
+[heat_sources]
+	#Read heat sources from config
+	fromConfig = true
+	#List of heat source blocks or fluids. Each element in a list must follow the order: type (block, fluid), name, heat level (1-10), additional information shown in JEI
+	heatSources = [
+	    ["block", "minecraft:torch", "1", ""],
+	    ["block", "minecraft:soul_torch", "1", ""],
+	    ["block", "minecraft:wall_torch", "1", ""],
+	    ["block", "minecraft:soul_wall_torch", "1", ""],
+	    ["block", "minecraft:fire", "2", ""],
+	    ["block", "minecraft:soul_fire", "2", ""],
+	    ["block", "minecraft:campfire", "2", ""],
+	    ["block", "minecraft:soul_campfire", "2", ""],
+	    ["block", "minecraft:magma_block", "3", ""],
+	    ["fluid", "minecraft:lava", "4", ""],
+	    ["block", "create:lit_blaze_burner", "2", "Lit"],
+	    ["block", "create:blaze_burner/fading", "3", "Heated"],
+	    ["block", "create:blaze_burner/kindled", "3", "Heated"],
+	    ["block", "create:blaze_burner/seething", "5", "Super-Heated"]
+    ]
+
 ```
 
 ## Recipe example:
