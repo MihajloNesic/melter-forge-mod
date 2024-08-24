@@ -36,8 +36,9 @@ public class HeatSources {
     }
 
     public static boolean isHeatSource(Level pLevel, BlockState blockState) {
-        int heatLevel = getHeatSource(pLevel, blockState);
-        return heatLevel > 0;
+        Optional<HeatSource> heatSource = HeatSourcesRegistry.fromBlock(pLevel, blockState.getBlock());
+
+        return heatSource.isPresent();
     }
     public static int getHeatSource(Level pLevel, BlockState state){
         if(HeatSourcesConfig.HEAT_SOURCES_FROM_CONFIG.get())

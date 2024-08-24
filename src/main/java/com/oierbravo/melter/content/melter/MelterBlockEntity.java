@@ -267,6 +267,8 @@ public class MelterBlockEntity extends BlockEntity  {
     }
 
     protected static boolean hasMinimumHeatSource(int minimum, MelterBlockEntity melter) {
+        if(melter.isCreative())
+            return true;
         BlockPos pos = melter.getBlockPos();
         BlockState below = melter.getLevel().getBlockState(pos.below());
         int sourceHeatLevel = HeatSources.getHeatSource(melter.getLevel(), below);
