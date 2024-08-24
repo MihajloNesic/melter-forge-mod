@@ -2,12 +2,19 @@ package com.oierbravo.melter.content.melter.heatsource;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.conditions.ConditionalOps;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.WithConditions;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -60,9 +67,34 @@ public class HeatSource {
     public Block getSource() {
         return this.source;
     }
+    public ItemStack getItemStackSource(){
+        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(source);
+
+        //"minecraft:soul_fire" -> generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+        return switch(blockResourceLocation.toString()) {
+            case "minecraft:fire" -> HeatSources.generateItemStackWithCustomItemName(new ItemStack(Items.FLINT_AND_STEEL), Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+            case "minecraft:soul_fire" -> HeatSources.generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+            //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
+            default -> new ItemStack(BuiltInRegistries.ITEM.get(blockResourceLocation));
+        };
+    }
+    public Fluid getFluidSource() {
+        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(source);
+        return BuiltInRegistries.FLUID.get(blockResourceLocation);
+    }
+    public FluidStack getFluidStackSource() {
+        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(source);
+        return new FluidStack(BuiltInRegistries.FLUID.get(blockResourceLocation),1000);
+    }
+
+    public boolean isCreative() {
+        if(sourceType == SourceType.CREATIVE)
+            return true;
+        return false;
+    }
 
     public enum SourceType implements StringRepresentable  {
-        BLOCK, FLUID;
+        BLOCK, FLUID, CREATIVE;
 
 
         @Override

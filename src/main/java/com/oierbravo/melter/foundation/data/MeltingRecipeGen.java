@@ -23,18 +23,21 @@ public class MeltingRecipeGen extends RecipeProvider {
                 .input(Tags.Items.COBBLESTONES)
                 .output(Fluids.LAVA.getSource(),250)
                 .withProcessingTime(200)
+                .requiredHeat(1)
                 .save(recipeOutput);
 
         create("stones")
                 .input(Tags.Items.STONES)
                 .output(Fluids.LAVA.getSource(),250)
                 .withProcessingTime(200)
+                .requiredHeat(1)
                 .save(recipeOutput);
 
         create("obsidians")
                 .input(Tags.Items.OBSIDIANS)
                 .output(Fluids.LAVA.getSource(),1000)
                 .withProcessingTime(400)
+                .requiredHeat(5)
                 .save(recipeOutput);
 
     }

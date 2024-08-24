@@ -3,6 +3,7 @@
   "input": {
     "tag": "c:obsidians"
   },
+  "minimumHeat": 5,
   "output": {
     "amount": 1000,
     "id": "minecraft:lava"

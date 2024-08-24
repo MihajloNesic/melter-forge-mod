@@ -53,6 +53,12 @@ public class MeltingRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
+    public MeltingRecipeBuilder requiredHeat(int pHeatLevel) {
+        params.minimumHeat = pHeatLevel;
+        return this;
+    }
+
+
     @Override
     public @NotNull MeltingRecipeBuilder unlockedBy(@NotNull String name, @NotNull Criterion<?> criterion) {
         this.criteria.put(name, criterion);
@@ -99,8 +105,6 @@ public class MeltingRecipeBuilder implements RecipeBuilder {
     public void save(RecipeOutput recipeOutput) {
         save(recipeOutput, params.id);
     }
-
-
 
 
 

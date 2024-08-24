@@ -53,7 +53,7 @@ public record ModHeatSources() {
         new HeatSourceBuilder(CAMPFIRE.location()).source(Blocks.CAMPFIRE).heatLevel(3).register(CAMPFIRE, heatSourceBootstrapContext);
         new HeatSourceBuilder(MAGMA.location()).source(Blocks.MAGMA_BLOCK).heatLevel(4).register(MAGMA, heatSourceBootstrapContext);
         new HeatSourceBuilder(LAVA.location()).source(Blocks.LAVA).heatLevel(5).sourceType(HeatSource.SourceType.FLUID).register(LAVA, heatSourceBootstrapContext);
-        new HeatSourceBuilder(CREATIVE.location()).source(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get()).heatLevel(10).register(CREATIVE, heatSourceBootstrapContext);
+        new HeatSourceBuilder(CREATIVE.location()).source(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get()).sourceType(HeatSource.SourceType.CREATIVE).register(CREATIVE, heatSourceBootstrapContext);
 
     }
 

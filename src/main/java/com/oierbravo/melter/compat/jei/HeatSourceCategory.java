@@ -21,6 +21,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -121,17 +122,27 @@ public class HeatSourceCategory implements IRecipeCategory<HeatSourceCategory.Re
         for (Map.Entry<ResourceKey<HeatSource>, HeatSource> entry : Minecraft.getInstance().level.registryAccess().registry(HeatSourcesRegistry.HEAT_SOURCE_REGISTRY_KEY).get().entrySet()) {
             HeatSource heatSource = (HeatSource) entry.getValue();
             if(heatSource.getSourceType() == HeatSource.SourceType.BLOCK){
-                recipes.add(new Recipe(new ItemStack(heatSource.getSource()), null, heatSource.getHeatLevel(), "TEST DESC"));
+                recipes.add(new Recipe(generateItemStack(heatSource.getSource()), null, heatSource.getHeatLevel(), ""));
             }
-            //if(heatSource.getSourceType() == HeatSource.SourceType.FLUID){
-            //    recipes.add(new Recipe(FluidStack.(heatSource.getSource()), null, heatSource.getHeatLevel(), "TEST DESC"));
-            //}
+            if(heatSource.getSourceType() == HeatSource.SourceType.FLUID){
+                recipes.add(new Recipe(null, new FluidStack(heatSource.getFluidSource(),1000), heatSource.getHeatLevel(), ""));
+            }
 
         }
         recipes.sort(Comparator.comparingInt(Recipe::heat));
         return recipes;
     }
+    private static ItemStack generateItemStack(Block pBlock){
+        ResourceLocation blockResourceLocation = BuiltInRegistries.BLOCK.getKey(pBlock);
 
+        //"minecraft:soul_fire" -> generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+        return switch(blockResourceLocation.toString()) {
+            case "minecraft:fire" -> HeatSources.generateItemStackWithCustomItemName(new ItemStack(Items.FLINT_AND_STEEL),Component.translatable("block.minecraft.fire").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+            case "minecraft:soul_fire" -> HeatSources.generateItemStackWithCustomItemName(new ItemStack(Items.FIRE_CHARGE),Component.translatable("block.minecraft.soul_fire").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+            //case "create:lit_blaze_burner" -> Melter.withCreate ? new ItemStack(AllBlocks.BLAZE_BURNER) : new ItemStack(Blocks.AIR);
+            default -> new ItemStack(BuiltInRegistries.ITEM.get(blockResourceLocation));
+        };
+    }
     public static List<Recipe> getRecipesFromConfig() {
         List<Recipe> recipes = new ArrayList<>();
 

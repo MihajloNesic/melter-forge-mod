@@ -3,6 +3,7 @@ package com.oierbravo.melter.content.melter.heatsource;
 import com.oierbravo.melter.Melter;
 import com.oierbravo.melter.registrate.ModBlocks;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,7 +31,8 @@ public class HeatSources {
 
     public static boolean isCreative(Level pLevel, BlockPos below) {
         Block belowBlock = pLevel.getBlockState(below).getBlock();
-        return belowBlock.equals(ModBlocks.CREATIVE_HEAT_SOURCE_BLOCK.get());
+        Optional<HeatSource> heatSource = HeatSourcesRegistry.fromBlock(pLevel, belowBlock);
+        return heatSource.map(HeatSource::isCreative).orElse(false);
     }
 
     public static boolean isHeatSource(Level pLevel, BlockState blockState) {
@@ -169,7 +171,7 @@ public class HeatSources {
      *
      * If no valid heat source is present, we are adding a Barrier block with a custom text.
      */
-    public static Map<HeatSource.SourceType, List> getHeatSourcesForHeatLevel(int heatLevel) {
+    public static Map<HeatSource.SourceType, List> getHeatSourcesForHeatLevelFromConfig(int heatLevel) {
         Map<HeatSource.SourceType, List> stackMap = new HashMap<>(); // I know...
         Arrays.stream(HeatSource.SourceType.values()).forEach(type -> stackMap.put(type, new ArrayList<>()));
 
@@ -235,7 +237,46 @@ public class HeatSources {
 
         if (isMapEmpty) {
             stackMap.put(HeatSource.SourceType.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
-            return getHeatSourcesForHeatLevel(heatLevel + 1);
+            return getHeatSourcesForHeatLevelFromConfig(heatLevel + 1);
+        }
+
+        return stackMap;
+    }
+    public static Map<HeatSource.SourceType, List> getHeatSourcesForHeatLevelFromDatapacks(int heatLevel) {
+        Map<HeatSource.SourceType, List> stackMap = new HashMap<>(); // I know...
+        Arrays.stream(HeatSource.SourceType.values()).forEach(type -> stackMap.put(type, new ArrayList<>()));
+
+        Minecraft.getInstance().level
+                .registryAccess()
+                .registry(HeatSourcesRegistry.HEAT_SOURCE_REGISTRY_KEY)
+                .get().entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .filter(heatSource -> heatSource.getHeatLevel() == heatLevel)
+                .forEach(
+                        heatSource -> {
+                            if(heatSource.getSourceType() == HeatSource.SourceType.BLOCK)
+                                stackMap.get(heatSource.getSourceType())
+                                        .add(heatSource.getItemStackSource());
+                            if(heatSource.getSourceType() == HeatSource.SourceType.FLUID)
+                                stackMap.get(heatSource.getSourceType())
+                                        .add(heatSource.getFluidStackSource());
+                        }
+                );
+
+        if (heatLevel > 20) {
+            stackMap.put(HeatSource.SourceType.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
+            return stackMap;
+        }
+
+        Boolean isMapEmpty = stackMap.values().stream()
+                .map(List::isEmpty)
+                .reduce(Boolean::logicalAnd)
+                .orElse(true);
+
+        if (isMapEmpty) {
+            stackMap.put(HeatSource.SourceType.BLOCK, List.of(generateItemStackWithCustomItemName(new ItemStack(Blocks.BARRIER),Component.translatable("melter.tooltip.no_source_found"))));
+            return getHeatSourcesForHeatLevelFromDatapacks(heatLevel + 1);
         }
 
         return stackMap;
@@ -243,6 +284,13 @@ public class HeatSources {
     public static ItemStack generateItemStackWithCustomItemName(ItemStack itemStack, MutableComponent component){
         itemStack.set(DataComponents.ITEM_NAME,component);
         return itemStack;
+    }
+
+    public static Map<HeatSource.SourceType, List> getHeatSourcesForHeatLevel(int heatLevel) {
+        if(HeatSourcesConfig.HEAT_SOURCES_FROM_CONFIG.get())
+            return getHeatSourcesForHeatLevelFromConfig(heatLevel);
+        return  getHeatSourcesForHeatLevelFromDatapacks(heatLevel);
+
     }
 
     @Override
