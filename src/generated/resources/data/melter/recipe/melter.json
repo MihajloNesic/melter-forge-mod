@@ -1,19 +1,21 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "S S",
-    "S S",
-    "NSN"
-  ],
+  "category": "misc",
   "key": {
     "N": {
-      "item": "minecraft:iron_nugget"
+      "tag": "c:nuggets/iron"
     },
     "S": {
       "tag": "c:ingots/iron"
     }
   },
+  "pattern": [
+    "S S",
+    "S S",
+    "NSN"
+  ],
   "result": {
+    "count": 1,
     "id": "melter:melter"
   }
 }

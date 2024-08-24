@@ -1,0 +1,7 @@
+// 1.21	2024-08-24T14:58:07.59887711	Melter's melting recipes.
+093aae23b57cccf48b24d222c23ecaaeda6bef8e data/melter/advancement/recipes/melting/cobblestones.json
+233e8ea39571efa7502dd5bc9c64011ee25f6384 data/melter/advancement/recipes/melting/obsidians.json
+5e835e97ea7f828c3e87c33d8f16ce2c576ffefd data/melter/advancement/recipes/melting/stones.json
+4fa8d9359d630fd1bbc2f6f0b44aee2517cbc0cd data/melter/recipe/melting/cobblestones.json
+bda9147bf195e12e0999a50c625f21b3cd96e970 data/melter/recipe/melting/obsidians.json
+9418a7372de81b6427d74addc9e83b5b98e184db data/melter/recipe/melting/stones.json

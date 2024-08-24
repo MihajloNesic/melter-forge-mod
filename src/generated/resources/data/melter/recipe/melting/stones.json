@@ -1,0 +1,11 @@
+{
+  "type": "melter:melting",
+  "input": {
+    "tag": "c:stones"
+  },
+  "output": {
+    "amount": 250,
+    "id": "minecraft:lava"
+  },
+  "processingTime": 200
+}

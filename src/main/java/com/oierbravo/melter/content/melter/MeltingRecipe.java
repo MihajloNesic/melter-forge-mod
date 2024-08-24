@@ -11,7 +11,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.fluids.FluidStack;
+
+import java.util.List;
+import java.util.Optional;
 
 
 public class MeltingRecipe implements Recipe<RecipeInput> {
@@ -23,13 +28,17 @@ public class MeltingRecipe implements Recipe<RecipeInput> {
 
     public static final String ID = "melting";
 
+    protected List<ICondition> conditions = List.of();
+
+
     public static final MapCodec<MeltingRecipe> CODEC = RecordCodecBuilder.mapCodec(
             builder -> builder
                     .group(
                             FluidStack.CODEC.fieldOf("output").forGetter(MeltingRecipe::getOutput),
                             Ingredient.CODEC.fieldOf("input").forGetter(MeltingRecipe::getIngredient),
                             Codec.INT.fieldOf("processingTime").forGetter(MeltingRecipe::getProcessingTime),
-                            Codec.INT.optionalFieldOf("minimumHeat",1).forGetter(MeltingRecipe::getHeatLevel)
+                            Codec.INT.optionalFieldOf("minimumHeat",1).forGetter(MeltingRecipe::getHeatLevel),
+                            ICondition.LIST_CODEC.optionalFieldOf(ConditionalOps.DEFAULT_CONDITIONS_KEY).forGetter(MeltingRecipe::getConditions)
                     ).apply(builder, MeltingRecipe::new)
             );
 
@@ -46,13 +55,26 @@ public class MeltingRecipe implements Recipe<RecipeInput> {
     );
 
     public MeltingRecipe(FluidStack pOutput, Ingredient pInput, int pProcessingTime, int pMinimumHeat){
+
+        //validate();
+        this(pOutput, pInput, pProcessingTime, pMinimumHeat, Optional.empty());
+
+    }
+
+    public MeltingRecipe(FluidStack pOutput, Ingredient pInput, int pProcessingTime, int pMinimumHeat, Optional<List<ICondition>>  pRecipeConditions) {
         this.output = pOutput;
         this.input = pInput;
         this.processingTime = pProcessingTime;
         this.heatLevel = pMinimumHeat;
-        //validate();
+        pRecipeConditions.ifPresent(iConditions -> this.conditions = iConditions);
     }
 
+
+    private Optional<List<ICondition>> getConditions() {
+        if(conditions.isEmpty())
+            return Optional.empty();
+        return Optional.of(conditions);
+    }
     @Override
     public boolean matches(RecipeInput recipeInput, Level level) {
         return input.test(recipeInput.getItem(0));

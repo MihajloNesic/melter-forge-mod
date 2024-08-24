@@ -1,0 +1,11 @@
+{
+  "type": "melter:melting",
+  "input": {
+    "tag": "c:obsidians"
+  },
+  "output": {
+    "amount": 1000,
+    "id": "minecraft:lava"
+  },
+  "processingTime": 400
+}

@@ -1,6 +1,7 @@
 package com.oierbravo.melter;
 
 import com.mojang.logging.LogUtils;
+import com.oierbravo.melter.infrastructure.ModDataGen;
 import com.oierbravo.melter.registrate.ModHeatSources;
 import com.oierbravo.melter.content.melter.heatsource.HeatSourcesRegistry;
 import com.oierbravo.melter.registrate.*;
@@ -42,6 +43,7 @@ public class Melter
 
         modEventBus.addListener(HeatSourcesRegistry::registerDatapackRegistries);
         modEventBus.addListener(ModHeatSources::onGatherData);
+        modEventBus.addListener(ModDataGen::gatherData);
 
         ModConfig.register(modContainer);
 
